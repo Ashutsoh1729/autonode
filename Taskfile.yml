@@ -1,0 +1,82 @@
+version: "3"
+
+dotenv: [".env"]
+
+tasks:
+  # ─── Lifecycle ─────────────────────────────────────
+  start:
+    desc: Start database and dev server
+    cmds:
+      - task: db:up
+      - task: dev
+
+  stop:
+    desc: Stop dev server and database
+    cmds:
+      - task: db:down
+
+  # ─── Development ───────────────────────────────────
+  dev:
+    desc: Start Next.js dev server
+    cmds:
+      - pnpm dev
+
+  build:
+    desc: Build production bundle
+    cmds:
+      - pnpm build
+
+  lint:
+    desc: Run ESLint
+    cmds:
+      - pnpm lint
+
+  # ─── Database ──────────────────────────────────────
+  db:up:
+    desc: Start Postgres container (opens Docker if needed)
+    cmds:
+      - |
+        if ! docker info > /dev/null 2>&1; then
+          echo "Starting Docker Desktop..."
+          open -a Docker
+          echo "Waiting for Docker to be ready..."
+          while ! docker info > /dev/null 2>&1; do sleep 1; done
+          echo "Docker is ready."
+        fi
+      - docker compose up -d
+
+  db:down:
+    desc: Stop Postgres container (preserves volumes)
+    cmds:
+      - docker compose down
+
+  db:generate:
+    desc: Generate Drizzle migration files
+    cmds:
+      - pnpm drizzle-kit generate
+
+  db:migrate:
+    desc: Apply Drizzle migrations
+    cmds:
+      - pnpm drizzle-kit migrate
+
+  db:push:
+    desc: Push schema directly (dev shortcut)
+    cmds:
+      - pnpm drizzle-kit push
+
+  db:studio:
+    desc: Open Drizzle Studio
+    cmds:
+      - pnpm drizzle-kit studio
+
+  db:reset:
+    desc: Stop container and remove volume
+    cmds:
+      - docker compose down -v
+
+  # ─── Auth ──────────────────────────────────────────
+  auth:generate:
+    desc: Generate Better Auth schema
+    cmds:
+      - pnpm dlx @better-auth/cli@latest generate

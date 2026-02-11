@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:17
+    container_name: autonode-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${AUTONODE_DB_USER:-autonode}
+      POSTGRES_PASSWORD: ${AUTONODE_DB_PASSWORD:-autonode}
+      POSTGRES_DB: ${AUTONODE_DB_NAME:-autonode}
+    volumes:
+      - autonode-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autonode -d autonode"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  autonode-pgdata:
