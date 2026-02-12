@@ -24,6 +24,8 @@ export const workflowsRouter = createTRPCRouter({
 
   /** Test AI — fires the Inngest ai/generate.text function with a hardcoded prompt */
   generateText: protectedProcedure.mutation(async () => {
+    // We can throw an error for testing here
+
     const result = await inngest.send({
       name: "ai/generate.text",
       data: {

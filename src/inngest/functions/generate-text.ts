@@ -1,5 +1,6 @@
 import { inngest } from "../client";
 import { generateWithGemini } from "@/services/ai";
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Inngest function: ai/generate.text
@@ -19,6 +20,8 @@ export const aiGenerateText = inngest.createFunction(
     { event: "ai/generate.text" },
     async ({ event, step }) => {
         const prompt = event.data.prompt;
+
+        Sentry.logger.info("Generating text for prompt:", prompt);
 
         const result = await step.ai.wrap(
             "call-generate-text",
