@@ -19,7 +19,7 @@ tasks:
   dev:
     desc: Start Next.js dev server
     cmds:
-      - pnpm dev
+      - pnpm dev:all
 
   build:
     desc: Build production bundle

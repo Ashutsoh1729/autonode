@@ -8,6 +8,13 @@
       "when": 1770802170855,
       "tag": "0000_special_carnage",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1770833660146,
+      "tag": "0001_lumpy_warhawk",
+      "breakpoints": true
     }
   ]
 }
