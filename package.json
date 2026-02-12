@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "inngest:dev": "pnpm dlx inngest-cli@latest dev",
+    "dev:all": "mprocs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
@@ -19,6 +21,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.4",
     "drizzle-orm": "^0.45.1",
+    "inngest": "^3.52.0",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
@@ -40,6 +43,7 @@
     "drizzle-kit": "^0.31.9",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "mprocs": "^0.8.3",
     "shadcn": "^3.8.4",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
