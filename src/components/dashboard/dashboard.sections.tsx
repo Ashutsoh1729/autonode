@@ -25,6 +25,15 @@ const DashboardSections = ({ userName }: { userName: string }) => {
     },
   });
 
+  const aiMutation = api.workflows.generateText.useMutation({
+    onSuccess: (data) => {
+      toast.success(`AI event sent! IDs: ${data.ids.join(", ")}`);
+    },
+    onError: (error) => {
+      toast.error(`AI Error: ${error.message}`);
+    },
+  });
+
   return (
     <div className="w-full flex flex-1 flex-col gap-4 p-4 pt-0">
       <div className="grid auto-rows-min gap-4 md:grid-cols-3">
@@ -43,7 +52,15 @@ const DashboardSections = ({ userName }: { userName: string }) => {
             {isLoading ? "Loading..." : workflows?.length} count
           </div>
         </div>
-        <div className="aspect-video rounded-xl bg-muted/50"></div>
+        <div className="aspect-video rounded-xl bg-muted/50 p-6 flex flex-col justify-center items-center">
+          <h3 className="font-semibold mb-2">Test AI</h3>
+          <Button
+            onClick={() => aiMutation.mutate()}
+            disabled={aiMutation.isPending}
+          >
+            {aiMutation.isPending ? "Sending..." : "Generate Text"}
+          </Button>
+        </div>
       </div>
 
       <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-6">
