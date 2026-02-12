@@ -1,5 +1,7 @@
 import { inngest } from "./client";
 
+export { aiGenerateText } from "./functions/generate-text";
+
 export const helloWorld = inngest.createFunction(
   { id: "hello-world" },
   { event: "test/hello.world" },

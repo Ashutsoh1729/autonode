@@ -21,4 +21,16 @@ export const workflowsRouter = createTRPCRouter({
       })
       .returning();
   }),
+
+  /** Test AI — fires the Inngest ai/generate.text function with a hardcoded prompt */
+  generateText: protectedProcedure.mutation(async () => {
+    const result = await inngest.send({
+      name: "ai/generate.text",
+      data: {
+        prompt:
+          "Explain what Inngest is in 2 sentences. Keep it concise and technical.",
+      },
+    });
+    return { sent: true, ids: result.ids };
+  }),
 });
