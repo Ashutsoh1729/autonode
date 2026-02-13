@@ -1,88 +1,119 @@
-"use client"
+"use client";
 
-import { Home, Settings, LogOut, Code2, Plus } from "lucide-react"
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarFooter,
-} from "@/components/ui/sidebar"
-import { signOut } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
+  Home,
+  Settings,
+  LogOut,
+  Code2,
+  Plus,
+  CreditCard,
+  Star,
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarFooter,
+} from "@/components/ui/sidebar";
+import { authClient, signOut } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 // Menu items.
 const items = [
-    {
-        title: "Workflows",
-        url: "/dashboard",
-        icon: Home,
-    },
-    {
-        title: "Templates",
-        url: "/dashboard/templates",
-        icon: Code2,
-    },
-    {
-        title: "Settings",
-        url: "/dashboard/settings",
-        icon: Settings,
-    },
-]
+  {
+    title: "Workflows",
+    url: "/dashboard",
+    icon: Home,
+  },
+  {
+    title: "Credentials",
+    url: "/dashboard/credentials",
+    icon: Code2,
+  },
+  {
+    title: "Executions",
+    url: "/dashboard/executions",
+    icon: Settings,
+  },
+];
 
 export function AppSidebar() {
-    const router = useRouter();
+  const router = useRouter();
 
-    return (
-        <Sidebar>
-            <SidebarContent>
-                <SidebarGroup>
-                    <div className="flex items-center justify-between px-4 py-2">
-                        <SidebarGroupLabel className="text-lg font-bold text-foreground">Autonode</SidebarGroupLabel>
-                        <button className="text-muted-foreground hover:text-foreground">
-                            <Plus className="h-4 w-4" />
-                        </button>
-                    </div>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <a href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </a>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            onClick={async () => {
-                                await signOut({
-                                    fetchOptions: {
-                                        onSuccess: () => {
-                                            router.push("/sign-in");
-                                        },
-                                    },
-                                });
-                            }}
-                        >
-                            <LogOut />
-                            <span>Sign Out</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarFooter>
-        </Sidebar>
-    )
+  return (
+    <Sidebar>
+      <SidebarContent>
+        <SidebarGroup>
+          <div className="flex items-center justify-between px-4 py-2">
+            <SidebarGroupLabel className="text-lg font-bold text-foreground">
+              Autonode
+            </SidebarGroupLabel>
+            <button className="text-muted-foreground hover:text-foreground">
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={async () => {
+                authClient.checkout({ slug: "autonode" });
+              }}
+            >
+              <Star />
+              <span>Upgrade to Pro</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={async () => {
+                authClient.customer.portal();
+              }}
+            >
+              <CreditCard />
+              <span>Billing</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={async () => {
+                await signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/sign-in");
+                    },
+                  },
+                });
+              }}
+            >
+              <LogOut />
+              <span>Sign Out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
+  );
 }
