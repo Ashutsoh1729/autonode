@@ -28,6 +28,7 @@ export default function SignUpPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     await signUp.email({
       email,
       password,
@@ -40,7 +41,7 @@ export default function SignUpPage() {
           router.push("/dashboard");
         },
         onError: (ctx) => {
-          toast.error(ctx.error.message);
+          toast.error(ctx.error.message ?? "Internal Server Error");
         },
       },
     });
