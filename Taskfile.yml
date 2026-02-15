@@ -7,7 +7,7 @@ tasks:
   start:
     desc: Start database and dev server
     cmds:
-      - task: db:up
+      # - task: db:up
       - task: dev
 
   stop:
