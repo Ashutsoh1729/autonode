@@ -1,8 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { polarClient } from "@/lib/polar";
 
 /**
  * 1. CONTEXT
@@ -13,14 +12,14 @@ import { headers } from "next/headers";
  */
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-    const session = await auth.api.getSession({
-        headers: opts.headers,
-    });
+  const session = await auth.api.getSession({
+    headers: opts.headers,
+  });
 
-    return {
-        session,
-        ...opts,
-    };
+  return {
+    session,
+    ...opts,
+  };
 };
 
 /**
@@ -29,10 +28,10 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
  * This is where the tRPC API is initialized, connecting the context and transformer.
  */
 const t = initTRPC.context<typeof createTRPCContext>().create({
-    transformer: superjson,
-    errorFormatter({ shape }) {
-        return shape;
-    },
+  transformer: superjson,
+  errorFormatter({ shape }) {
+    return shape;
+  },
 });
 
 /**
@@ -66,16 +65,42 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-    if (!ctx.session || !ctx.session.user) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    return next({
-        ctx: {
-            // infers the `session` as non-nullable
-            session: {
-                ...ctx.session,
-                user: ctx.session.user,
-            },
-        },
-    });
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: {
+        ...ctx.session,
+        user: ctx.session.user,
+      },
+    },
+  });
 });
+
+/*
+ * Here we are going to declare the premium procedures
+ */
+
+export const premiumProcedures = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    const customer = await polarClient.customers.getStateExternal({
+      externalId: ctx.session.user.id,
+    });
+
+    if (
+      !customer.activeSubscriptions ||
+      customer.activeSubscriptions.length === 0
+    ) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Active subscription is required",
+      });
+    }
+
+    return next({
+      ctx: { ...ctx, customer },
+    });
+  },
+);
