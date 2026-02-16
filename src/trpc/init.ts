@@ -1,0 +1,61 @@
+import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
+import { polarClient } from "@/lib/polar";
+import { initTRPC, TRPCError } from "@trpc/server";
+import { headers } from "next/headers";
+import { cache } from "react";
+export const createTRPCContext = cache(async () => {
+  /**
+   * @see: https://trpc.io/docs/server/context
+   */
+  return { userId: "user_123" };
+});
+// Avoid exporting the entire t-object
+// since it's not very descriptive.
+// For instance, the use of a t variable
+// is common in i18n libraries.
+const t = initTRPC.create({
+  /**
+   * @see https://trpc.io/docs/server/data-transformers
+   */
+  // transformer: superjson,
+});
+// Base router and procedure helpers
+export const createTRPCRouter = t.router;
+export const createCallerFactory = t.createCallerFactory;
+export const baseProcedure = t.procedure;
+
+// here we will create protectedProcedure
+export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Unauthorized",
+    });
+  }
+
+  return next({ ctx: { ...ctx, session } });
+});
+
+// premium procedures for pro plans
+
+export const premiumProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    const customer = await polarClient.customers.getStateExternal({
+      externalId: ctx.session.user.id,
+    });
+
+    if (
+      !customer.activeSubscriptions ||
+      customer.activeSubscriptions.length == 0
+    ) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Active Subscription Required",
+      });
+    }
+    return next({ ctx: { ...ctx } });
+  },
+);

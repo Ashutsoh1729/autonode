@@ -1,71 +1,20 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { toast } from "sonner";
+import { useSuspenceWorkflows } from "@/hooks/use-workflows";
 
 const DashboardSections = ({ userName }: { userName: string }) => {
-  const utils = api.useUtils();
-  // const { data: workflows, isLoading } = api.others.getWorkflows.useQuery();
-
-  const { data: workflows, isLoading } = api.others.getWorkflows.useQuery();
-
-  const createMutation = api.others.createWorkflows.useMutation({
-    onSuccess: () => {
-      toast.success("Workflow created!");
-      utils.others.getWorkflows.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
-
-  const aiMutation = api.others.generateText.useMutation({
-    onSuccess: (data) => {
-      toast.success(`AI event sent! IDs: ${data.ids.join(", ")}`);
-    },
-    onError: (error) => {
-      toast.error(`AI Error: ${error.message}`);
-    },
-  });
+  const { data: workflows } = useSuspenceWorkflows();
 
   return (
-    <div className="w-full flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="aspect-video rounded-xl bg-muted/50 p-6 flex flex-col justify-center items-center">
-          <h3 className="font-semibold mb-2">Create New</h3>
-          <Button
-            onClick={() => createMutation.mutate()}
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? "Creating..." : "Create Workflow"}
-          </Button>
-        </div>
-        <div className="aspect-video rounded-xl bg-muted/50 p-6">
-          <h3 className="font-semibold mb-2">Workflows</h3>
-          <div className="text-sm font-mono">
-            {isLoading ? "Loading..." : workflows?.length} count
-          </div>
-        </div>
-        <div className="aspect-video rounded-xl bg-muted/50 p-6 flex flex-col justify-center items-center">
-          <h3 className="font-semibold mb-2">Test AI</h3>
-          <Button
-            onClick={() => aiMutation.mutate()}
-            disabled={aiMutation.isPending}
-          >
-            {aiMutation.isPending ? "Sending..." : "Generate Text"}
-          </Button>
-        </div>
-      </div>
-
-      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-6">
-        <h1 className="text-2xl font-bold mb-4">Welcome back, {userName}!</h1>
+    <div className=" mt-8 w-full flex flex-1 flex-col gap-4 pt-0">
+      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 px-4">
+        {/*         <h1 className="text-2xl font-bold mb-4">Welcome back, {userName}!</h1> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           {workflows?.map((workflow) => (
