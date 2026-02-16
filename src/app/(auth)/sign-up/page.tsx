@@ -38,7 +38,7 @@ export default function SignUpPage() {
           setLoading(false);
         },
         onSuccess: () => {
-          router.push("/dashboard");
+          router.push("/workflows");
         },
         onError: (ctx) => {
           toast.error(ctx.error.message ?? "Internal Server Error");

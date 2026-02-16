@@ -46,6 +46,7 @@ const items = [
 export function AppSidebar() {
   const router = useRouter();
   const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
+  console.log(hasActiveSubscription);
 
   return (
     <Sidebar>
