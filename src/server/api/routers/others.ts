@@ -7,7 +7,7 @@ import {
 import { workflows as workflowsTable } from "@/db/schema";
 import { inngest } from "@/inngest/client";
 
-export const workflowsRouter = createTRPCRouter({
+export const otherRouter = createTRPCRouter({
   getWorkflows: protectedProcedure.query(() => {
     return db.query.workflows.findMany();
   }),

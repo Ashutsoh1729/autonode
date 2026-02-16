@@ -4,7 +4,6 @@ import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
@@ -13,19 +12,21 @@ import { toast } from "sonner";
 
 const DashboardSections = ({ userName }: { userName: string }) => {
   const utils = api.useUtils();
-  const { data: workflows, isLoading } = api.workflows.getWorkflows.useQuery();
+  // const { data: workflows, isLoading } = api.others.getWorkflows.useQuery();
 
-  const createMutation = api.workflows.createWorkflows.useMutation({
+  const { data: workflows, isLoading } = api.others.getWorkflows.useQuery();
+
+  const createMutation = api.others.createWorkflows.useMutation({
     onSuccess: () => {
       toast.success("Workflow created!");
-      utils.workflows.getWorkflows.invalidate();
+      utils.others.getWorkflows.invalidate();
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
     },
   });
 
-  const aiMutation = api.workflows.generateText.useMutation({
+  const aiMutation = api.others.generateText.useMutation({
     onSuccess: (data) => {
       toast.success(`AI event sent! IDs: ${data.ids.join(", ")}`);
     },
