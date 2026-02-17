@@ -1,12 +1,14 @@
 import { db } from "@/db";
 import { user, workflows } from "@/db/schema";
+import { PAGINATION } from "@/lib/constants";
 import {
   createTRPCRouter,
   premiumProcedure,
   protectedProcedure,
 } from "@/trpc/init";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 import * as z from "zod";
+import { generateSlug } from "random-word-slugs";
 
 export const workflowsRouter = createTRPCRouter({
   // creating new workflow
@@ -14,7 +16,7 @@ export const workflowsRouter = createTRPCRouter({
     return db
       .insert(workflows)
       .values({
-        name: "workflow",
+        name: generateSlug(3),
         userId: ctx.session.user.id,
       })
       .returning();
@@ -54,9 +56,46 @@ export const workflowsRouter = createTRPCRouter({
       });
     }),
 
-  getMany: protectedProcedure.query(({ ctx }) => {
-    return db.query.workflows.findMany({
-      where: and(eq(workflows.userId, ctx.session.user.id)),
-    });
-  }),
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(PAGINATION.DEFAULT_PAGE),
+        pageSize: z
+          .number()
+          .min(PAGINATION.MIN_PAGE_SIZE)
+          .max(PAGINATION.MAX_PAGE_SIZE)
+          .default(PAGINATION.DEFAULT_PAGE_SIZE),
+        search: z.string().default(""),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize, search } = input;
+
+      const [items, totalCount] = await Promise.all([
+        db.query.workflows.findMany({
+          where: and(
+            eq(workflows.userId, ctx.session.user.id),
+            search ? ilike(workflows.name, `%${search}%`) : undefined,
+          ),
+          limit: pageSize,
+          offset: (page - 1) * pageSize,
+          orderBy: desc(workflows.updatedAt),
+        }),
+        db.$count(workflows, eq(workflows.userId, ctx.session.user.id)),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / pageSize);
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
+
+      return {
+        items,
+        page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      };
+    }),
 });

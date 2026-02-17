@@ -1,7 +1,29 @@
 "use client";
-import { EntityContainer, EntityHeader } from "@/components/entity-components";
+import {
+  EntityContainer,
+  EntityHeader,
+  EntitySearch,
+} from "@/components/entity-components";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import { useCreateWorkflow } from "@/hooks/use-workflows";
+import { useCreateWorkflow } from "@/features/workflows/hooks/use-workflows";
+import { useWorkflowsParams } from "../hooks/use-workflows-params";
+import { useEntitySearch } from "@/hooks/use-entity-search";
+
+export const WorkflowSearch = () => {
+  const [params, setParams] = useWorkflowsParams();
+
+  const { searchValue, onSearchChange } = useEntitySearch({
+    params: params,
+    setParam: setParams,
+  });
+  return (
+    <EntitySearch
+      value={searchValue}
+      onChange={onSearchChange}
+      placeholder="Search Workflows"
+    />
+  );
+};
 
 export const WorkflowHeader = ({ disabled }: { disabled?: boolean }) => {
   const createWorkflow = useCreateWorkflow();
@@ -39,6 +61,8 @@ export const WorkflowContainer = ({
   children: React.ReactNode;
 }) => {
   return (
-    <EntityContainer header={<WorkflowHeader />}>{children}</EntityContainer>
+    <EntityContainer header={<WorkflowHeader />} search={<WorkflowSearch />}>
+      {children}
+    </EntityContainer>
   );
 };
