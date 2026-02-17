@@ -2,10 +2,14 @@
 import {
   EntityContainer,
   EntityHeader,
+  EntityPagination,
   EntitySearch,
 } from "@/components/entity-components";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import { useCreateWorkflow } from "@/features/workflows/hooks/use-workflows";
+import {
+  useCreateWorkflow,
+  useSuspenceWorkflows,
+} from "@/features/workflows/hooks/use-workflows";
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
 import { useEntitySearch } from "@/hooks/use-entity-search";
 
@@ -55,13 +59,31 @@ export const WorkflowHeader = ({ disabled }: { disabled?: boolean }) => {
   );
 };
 
+export const WorkflowPagination = () => {
+  const workflows = useSuspenceWorkflows();
+  const [params, setParams] = useWorkflowsParams();
+
+  return (
+    <EntityPagination
+      disabled={workflows.isFetching}
+      totalPages={workflows.data.totalPages}
+      page={workflows.data.page}
+      onPageChange={(page) => setParams({ ...params, page })}
+    />
+  );
+};
+
 export const WorkflowContainer = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
   return (
-    <EntityContainer header={<WorkflowHeader />} search={<WorkflowSearch />}>
+    <EntityContainer
+      header={<WorkflowHeader />}
+      search={<WorkflowSearch />}
+      pagination={<WorkflowPagination />}
+    >
       {children}
     </EntityContainer>
   );
