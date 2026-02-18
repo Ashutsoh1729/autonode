@@ -30,8 +30,12 @@ export const workflowsRouter = createTRPCRouter({
       return db
         .delete(workflows)
         .where(
-          and(eq(workflows.id, input.id), eq(user.id, ctx.session.user.id)),
-        );
+          and(
+            eq(workflows.id, input.id),
+            eq(workflows.userId, ctx.session.user.id),
+          ),
+        )
+        .returning();
     }),
 
   updateName: protectedProcedure
@@ -81,7 +85,14 @@ export const workflowsRouter = createTRPCRouter({
           offset: (page - 1) * pageSize,
           orderBy: desc(workflows.updatedAt),
         }),
-        db.$count(workflows, eq(workflows.userId, ctx.session.user.id)),
+
+        db.$count(
+          workflows,
+          and(
+            eq(workflows.userId, ctx.session.user.id),
+            search ? ilike(workflows.name, `%${search}%`) : undefined,
+          ),
+        ),
       ]);
 
       const totalPages = Math.ceil(totalCount / pageSize);
