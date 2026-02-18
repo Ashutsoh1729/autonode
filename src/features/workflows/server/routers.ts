@@ -9,6 +9,7 @@ import {
 import { and, desc, eq, ilike } from "drizzle-orm";
 import * as z from "zod";
 import { generateSlug } from "random-word-slugs";
+import { TRPCError } from "@trpc/server";
 
 export const workflowsRouter = createTRPCRouter({
   // creating new workflow
@@ -43,21 +44,33 @@ export const workflowsRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return db
         .update(workflows)
-        .set({ name: input.name })
+        .set({ name: input.name, updatedAt: new Date() })
         .where(
-          and(eq(workflows.id, input.id), eq(user.id, ctx.session.user.id)),
-        );
+          and(
+            eq(workflows.id, input.id),
+            eq(workflows.userId, ctx.session.user.id),
+          ),
+        )
+        .returning();
     }),
 
   getOne: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(({ ctx, input }) => {
-      return db.query.workflows.findFirst({
+    .query(async ({ ctx, input }) => {
+      const workflow = await db.query.workflows.findFirst({
         where: and(
           eq(workflows.id, input.id),
-          eq(user.id, ctx.session.user.id),
+          eq(workflows.userId, ctx.session.user.id),
         ),
       });
+
+      if (!workflow) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
+        });
+      }
+      return workflow;
     }),
 
   getMany: protectedProcedure

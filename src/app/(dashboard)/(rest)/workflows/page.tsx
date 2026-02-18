@@ -1,4 +1,3 @@
-import DashboardSections from "@/components/dashboard/dashboard.sections";
 import {
   WorkflowContainer,
   WorkflowError,
@@ -6,7 +5,7 @@ import {
   WorkflowLoading,
 } from "@/features/workflows/components/workflow";
 import { auth } from "@/lib/auth";
-import { requreAuth } from "@/lib/auth-utils";
+import { requireAuth } from "@/lib/auth-utils";
 import { prefetchWorkflows } from "@/features/workflows/server/prefetch";
 import { HydrateClient } from "@/trpc/server";
 import { headers } from "next/headers";
@@ -21,7 +20,7 @@ type props = {
 };
 
 export default async function WorkflowPage({ searchParams }: props) {
-  await requreAuth();
+  await requireAuth();
 
   const session = await auth.api.getSession({
     headers: await headers(),
