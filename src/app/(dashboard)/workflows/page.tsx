@@ -1,5 +1,10 @@
 import DashboardSections from "@/components/dashboard/dashboard.sections";
-import { WorkflowContainer } from "@/features/workflows/components/workflow";
+import {
+  WorkflowContainer,
+  WorkflowError,
+  WorkflowLists,
+  WorkflowLoading,
+} from "@/features/workflows/components/workflow";
 import { auth } from "@/lib/auth";
 import { requreAuth } from "@/lib/auth-utils";
 import { prefetchWorkflows } from "@/features/workflows/server/prefetch";
@@ -35,9 +40,10 @@ export default async function WorkflowPage({ searchParams }: props) {
     <>
       <WorkflowContainer>
         <HydrateClient>
-          <ErrorBoundary fallback={<p>Error</p>}>
-            <Suspense fallback={<p>Loading...</p>}>
-              <DashboardSections userName={session.user.name} />
+          <ErrorBoundary fallback={<WorkflowError />}>
+            <Suspense fallback={<WorkflowLoading />}>
+              {/* <DashboardSections userName={session.user.name} /> */}
+              <WorkflowLists />
             </Suspense>
           </ErrorBoundary>
         </HydrateClient>
