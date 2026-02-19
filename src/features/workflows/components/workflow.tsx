@@ -163,8 +163,8 @@ export const WorkflowEmpty = () => {
   function handleCreate() {
     createWorkflow.mutate(undefined, {
       onSuccess: (data) => {
-        toast.success(`Workflow ${data[0].id} is created`);
-        router.push(`/workflows/${data[0].id}`);
+        toast.success(`Workflow ${data.workflow[0].id} is created`);
+        router.push(`/workflows/${data.workflow[0].id}`);
       },
 
       onError: (error) => {

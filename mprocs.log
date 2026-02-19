@@ -26,3 +26,7 @@ ERROR [lib::error] Error: channel closed
 ERROR [lib::error] Error: channel closed
 ERROR [lib::error] Error: channel closed
 ERROR [lib::error] Error: channel closed
+ERROR [lib::error] Error: channel closed
+ERROR [lib::mprocs] Got panic. @info:panicked at src/vt100/grid.rs:523:10:
+called `Option::unwrap()` on a `None` value
+@stackTrace:disabled backtrace
