@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { user, workflows } from "@/db/schema";
+import { nodes, workflows } from "@/db/schema";
 import { PAGINATION } from "@/lib/constants";
 import {
   createTRPCRouter,
@@ -10,17 +10,37 @@ import { and, desc, eq, ilike } from "drizzle-orm";
 import * as z from "zod";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
+import { Edge, Node } from "@xyflow/react";
 
 export const workflowsRouter = createTRPCRouter({
   // creating new workflow
-  create: premiumProcedure.mutation(({ ctx }) => {
-    return db
-      .insert(workflows)
-      .values({
-        name: generateSlug(3),
-        userId: ctx.session.user.id,
-      })
-      .returning();
+  create: premiumProcedure.mutation(async ({ ctx }) => {
+    const data = await db.transaction(async (tx) => {
+      const workflowsData = await tx
+        .insert(workflows)
+        .values({
+          name: generateSlug(3),
+          userId: ctx.session.user.id,
+        })
+        .returning();
+
+      const nodeData = await tx
+        .insert(nodes)
+        .values({
+          workflowId: workflowsData[0].id,
+          type: "INITIAL",
+          position: { x: 0, y: 0 },
+          // TODO: You have to change it
+          name: "INITIAL",
+        })
+        .returning();
+      const finalData = {
+        workflow: workflowsData,
+        node: nodeData,
+      };
+      return finalData;
+    });
+    return data;
   }),
 
   // deleting a workflow
@@ -62,6 +82,10 @@ export const workflowsRouter = createTRPCRouter({
           eq(workflows.id, input.id),
           eq(workflows.userId, ctx.session.user.id),
         ),
+        with: {
+          nodes: true,
+          connections: true,
+        },
       });
 
       if (!workflow) {
@@ -70,7 +94,28 @@ export const workflowsRouter = createTRPCRouter({
           message: "Workflow not found",
         });
       }
-      return workflow;
+
+      const nodes: Node[] = workflow.nodes.map((node) => ({
+        id: node.id.toString(),
+        position: node.position as { x: number; y: number },
+        data: node.data as Record<string, unknown>,
+        type: node.type,
+      }));
+
+      const edges: Edge[] = workflow.connections.map((connection) => ({
+        id: connection.id.toString(),
+        source: connection.fromNodeId.toString(),
+        target: connection.toNodeId.toString(),
+        sourceHandle: connection.fromOutput,
+        targetHandle: connection.fromInput,
+      }));
+
+      return {
+        id: workflow.id,
+        name: workflow.name,
+        nodes,
+        edges,
+      };
     }),
 
   getMany: protectedProcedure
