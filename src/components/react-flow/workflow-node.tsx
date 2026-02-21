@@ -14,14 +14,14 @@ interface WorkflowNodeProps {
   description?: string;
 }
 
-export function WorkflowNode({
+export const WorkflowNode = ({
   children,
   showToolbar = true,
   onDelete,
   onSettings,
   name,
   description,
-}: WorkflowNodeProps) {
+}: WorkflowNodeProps) => {
   return (
     <>
       {showToolbar && (
@@ -52,4 +52,4 @@ export function WorkflowNode({
       )}
     </>
   );
-}
+};

@@ -8,6 +8,13 @@
       "when": 1771476139777,
       "tag": "0000_next_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771608500087,
+      "tag": "0001_curly_human_fly",
+      "breakpoints": true
     }
   ]
 }

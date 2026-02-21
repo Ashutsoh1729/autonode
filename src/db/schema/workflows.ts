@@ -24,7 +24,11 @@ export const workflows = pgTable("workflows", {
 
 // node tables
 
-export const nodeType = pgEnum("node_types", ["INITIAL"]);
+export const nodeType = pgEnum("node_types", [
+  "INITIAL",
+  "MANUAL_TRIGGER",
+  "HTTP_REQUEST",
+]);
 
 export const nodes = pgTable("nodes", {
   id: serial("id").primaryKey(),
