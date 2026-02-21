@@ -15,7 +15,7 @@ export type HttpRequestNodeData = {
 type HttpRequestNodeType = Node<HttpRequestNodeData>;
 
 export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
-  const NodeData = props.data as HttpRequestNodeData;
+  const NodeData = props.data;
   const description = NodeData.endpoint
     ? `${NodeData.method || "GET"}:${NodeData.endpoint}`
     : "Not Configured";

@@ -31,12 +31,12 @@ export const nodeType = pgEnum("node_types", [
 ]);
 
 export const nodes = pgTable("nodes", {
-  id: serial("id").primaryKey(),
+  id: text("id").primaryKey(),
   workflowId: integer("workflow_id")
     .notNull()
     .references(() => workflows.id, { onDelete: "cascade" }),
 
-  name: text("name").notNull(),
+  name: text("name"),
   type: nodeType("type").notNull().default("INITIAL"),
   position: jsonb("position"),
   data: jsonb("data").default({}),
@@ -53,19 +53,19 @@ export const connections = pgTable(
       .notNull()
       .references(() => workflows.id, { onDelete: "cascade" }),
 
-    name: text("name").notNull(),
+    name: text("name"),
 
-    fromNodeId: integer("from_node_id")
+    fromNodeId: text("from_node_id")
       .notNull()
       .references(() => nodes.id, { onDelete: "cascade" }),
 
-    toNodeId: integer("to_node_id")
+    toNodeId: text("to_node_id")
       .notNull()
       .references(() => nodes.id, { onDelete: "cascade" }),
 
     // we will check whether they will get useful or not
     fromOutput: text("from_output").default("main"),
-    fromInput: text("from_input").default("main"),
+    toInput: text("to_input").default("main"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -74,7 +74,7 @@ export const connections = pgTable(
     unique("nodes_relation").on(
       t.fromNodeId,
       t.toNodeId,
-      t.fromInput,
+      t.toInput,
       t.fromOutput,
     ),
   ],

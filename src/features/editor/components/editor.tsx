@@ -21,6 +21,8 @@ import "@xyflow/react/dist/style.css";
 import { useSuspenceWorkflow } from "@/features/workflows/hooks/use-workflows";
 import { nodeComponents } from "@/lib/node-components";
 import { AddNodeButton } from "@/components/react-flow/add-node-btn";
+import { useSetAtom } from "jotai";
+import { editorAtom } from "../store/atoms";
 
 export const EditorLoading = () => {
   return <LoadingView message="Loading editor..." />;
@@ -32,6 +34,9 @@ export const EditorError = () => {
 
 const Editor = ({ workflowId }: { workflowId: number }) => {
   const { data: workflow } = useSuspenceWorkflow(workflowId);
+  console.log(workflow);
+
+  const setEditor = useSetAtom(editorAtom);
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
@@ -62,6 +67,7 @@ const Editor = ({ workflowId }: { workflowId: number }) => {
         fitView
         nodeTypes={nodeComponents}
         style={{ height: "100%" }}
+        onInit={setEditor}
       >
         <Background />
         <Controls className="mb-16 ml-4" />

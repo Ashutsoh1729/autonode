@@ -54,6 +54,7 @@ export const WorkflowHeader = ({ disabled }: { disabled?: boolean }) => {
         router.push(`/workflows/${data.workflow[0].id}`);
       },
       onError: (err) => {
+        console.log(err);
         handleError(err);
       },
     });
