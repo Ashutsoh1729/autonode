@@ -279,8 +279,6 @@ export const EntityItem = ({
   isRemoving,
   className,
 }: EntityItemsProps) => {
-  //  TODO: From here, we will continue on 18 Feb
-
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();

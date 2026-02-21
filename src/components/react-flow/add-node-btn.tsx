@@ -2,18 +2,22 @@
 
 import { PlusIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { memo } from "react";
+import { memo, useState } from "react";
+import { NodeSelector } from "./node-selecter";
 
 export const AddNodeButton = memo(() => {
+  const [selectorOpen, setSelectorOpen] = useState(false);
   return (
-    <Button
-      className="bg-background"
-      size={"icon"}
-      variant={"outline"}
-      onClick={() => {}}
-    >
-      <PlusIcon />
-    </Button>
+    <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
+      <Button
+        className="bg-background"
+        size={"icon"}
+        variant={"outline"}
+        onClick={() => {}}
+      >
+        <PlusIcon />
+      </Button>
+    </NodeSelector>
   );
 });
 

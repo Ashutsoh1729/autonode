@@ -42,6 +42,7 @@ export const WorkflowSearch = () => {
 };
 
 export const WorkflowHeader = ({ disabled }: { disabled?: boolean }) => {
+  const router = useRouter();
   const createWorkflow = useCreateWorkflow();
 
   const { modal, handleError } = useUpgradeModal();
@@ -50,6 +51,7 @@ export const WorkflowHeader = ({ disabled }: { disabled?: boolean }) => {
     createWorkflow.mutate(undefined, {
       onSuccess: (data) => {
         // TODO: redirect to the workflow id
+        router.push(`/workflows/${data.workflow[0].id}`);
       },
       onError: (err) => {
         handleError(err);
