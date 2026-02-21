@@ -68,6 +68,11 @@ const Editor = ({ workflowId }: { workflowId: number }) => {
         nodeTypes={nodeComponents}
         style={{ height: "100%" }}
         onInit={setEditor}
+        snapGrid={[10, 10]}
+        snapToGrid
+        panOnScroll
+        panOnDrag={false}
+        selectionOnDrag
       >
         <Background />
         <Controls className="mb-16 ml-4" />
