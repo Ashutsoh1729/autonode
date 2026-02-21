@@ -13,7 +13,7 @@ import {
 import { NodeTypeValue } from "@/lib/node-components";
 import { GlobeIcon, MousePointerIcon } from "lucide-react";
 import { Separator } from "../ui/separator";
-import { Position, useReactFlow } from "@xyflow/react";
+import { useReactFlow } from "@xyflow/react";
 import { toast } from "sonner";
 
 export type NodeTypeOptions = {
