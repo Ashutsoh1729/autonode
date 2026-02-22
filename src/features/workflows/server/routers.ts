@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { nodes, workflows } from "@/db/schema";
+import { connections, nodes, nodeType, workflows } from "@/db/schema";
 import { PAGINATION } from "@/lib/constants";
 import {
   createTRPCRouter,
@@ -11,9 +11,11 @@ import * as z from "zod";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
 import { Edge, Node } from "@xyflow/react";
+import { createId } from "@paralleldrive/cuid2";
 
 export const workflowsRouter = createTRPCRouter({
   // creating new workflow
+  // status - Working Fine
   create: premiumProcedure.mutation(async ({ ctx }) => {
     const data = await db.transaction(async (tx) => {
       const workflowsData = await tx
@@ -27,11 +29,10 @@ export const workflowsRouter = createTRPCRouter({
       const nodeData = await tx
         .insert(nodes)
         .values({
+          id: createId(),
           workflowId: workflowsData[0].id,
           type: "INITIAL",
           position: { x: 0, y: 0 },
-          // TODO: You have to change it
-          name: "INITIAL",
         })
         .returning();
       const finalData = {
@@ -45,6 +46,8 @@ export const workflowsRouter = createTRPCRouter({
 
   // deleting a workflow
   // here we are using remove, as delete is a reserved keyword in js
+  // status - Working Fine
+
   remove: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
@@ -57,6 +60,74 @@ export const workflowsRouter = createTRPCRouter({
           ),
         )
         .returning();
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        nodes: z.array(
+          z.object({
+            id: z.string(),
+            type: z.enum(nodeType.enumValues).optional(),
+            position: z.object({ x: z.number(), y: z.number() }),
+            data: z.record(z.string(), z.any()).optional(),
+          }),
+        ),
+        edges: z.array(
+          z.object({
+            source: z.string(),
+            target: z.string(),
+            sourceHandle: z.string().nullish(),
+            targetHandle: z.string().nullish(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, nodes: data, edges } = input;
+      const workflow = await db.query.workflows.findFirst({
+        where: and(
+          eq(workflows.id, id),
+          eq(workflows.userId, ctx.session.user.id),
+        ),
+      });
+
+      // throwing error
+      if (!workflow) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
+        });
+      }
+
+      return await db.transaction(async (tx) => {
+        // first delete all the nodes
+        await tx.delete(nodes).where(eq(nodes.workflowId, workflow.id));
+
+        // create new nodes
+        await tx
+          .insert(nodes)
+          .values(data.map((node) => ({ ...node, workflowId: workflow.id })));
+
+        // now we have to create connections
+        if (edges.length > 0) {
+          await tx.insert(connections).values(
+            edges.map((edge) => ({
+              workflowId: workflow.id,
+              fromNodeId: edge.source,
+              toNodeId: edge.target,
+              toInput: edge.targetHandle,
+              fromOutput: edge.sourceHandle,
+            })),
+          );
+        }
+
+        // update workflow updateAt value
+        await tx.update(workflows).set({ updatedAt: new Date() });
+
+        return workflow;
+      });
     }),
 
   updateName: protectedProcedure
@@ -104,10 +175,10 @@ export const workflowsRouter = createTRPCRouter({
 
       const edges: Edge[] = workflow.connections.map((connection) => ({
         id: connection.id.toString(),
-        source: connection.fromNodeId.toString(),
-        target: connection.toNodeId.toString(),
+        source: connection.fromNodeId,
+        target: connection.toNodeId,
         sourceHandle: connection.fromOutput,
-        targetHandle: connection.fromInput,
+        targetHandle: connection.toInput,
       }));
 
       return {

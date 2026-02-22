@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TRPCReactProvider } from "@/trpc/client";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Provider } from "jotai";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,7 @@ export default function RootLayout({
         <NuqsAdapter>
           <TRPCReactProvider>
             <TooltipProvider>
-              {children}
+              <Provider>{children}</Provider>
               <Toaster />
             </TooltipProvider>
           </TRPCReactProvider>

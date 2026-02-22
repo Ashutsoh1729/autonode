@@ -15,6 +15,13 @@
       "when": 1771608500087,
       "tag": "0001_curly_human_fly",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771692230292,
+      "tag": "0002_needy_tenebrous",
+      "breakpoints": true
     }
   ]
 }

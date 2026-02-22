@@ -50,10 +50,10 @@ export const WorkflowHeader = ({ disabled }: { disabled?: boolean }) => {
   const handleOnNew = () => {
     createWorkflow.mutate(undefined, {
       onSuccess: (data) => {
-        // TODO: redirect to the workflow id
         router.push(`/workflows/${data.workflow[0].id}`);
       },
       onError: (err) => {
+        console.log(err);
         handleError(err);
       },
     });

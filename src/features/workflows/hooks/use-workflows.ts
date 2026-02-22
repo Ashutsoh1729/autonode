@@ -24,12 +24,12 @@ export const useCreateWorkflow = () => {
   return useMutation(
     trpc.workflows.create.mutationOptions({
       onSuccess: (data) => {
-        toast.success(`Workflow ${data[0].name} updated `);
+        toast.success(`Workflow ${data.workflow[0].name} Created `);
         // as we are just invalidating the query
         queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
 
         queryClient.invalidateQueries(
-          trpc.workflows.getOne.queryOptions({ id: data[0].id }),
+          trpc.workflows.getOne.queryOptions({ id: data.workflow[0].id }),
         );
       },
       onError: (error) => {
@@ -93,4 +93,28 @@ export const useRemoveWorkflow = () => {
 export const useSuspenceWorkflow = (id: number) => {
   const trpc = useTRPC();
   return useSuspenseQuery(trpc.workflows.getOne.queryOptions({ id }));
+};
+
+/*
+ * Hook to update editor state
+ */
+export const useUpdateEditorState = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.workflows.update.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Editor Saved Successfully`);
+        // as we are just invalidating the query
+        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries(
+          trpc.workflows.getOne.queryOptions({ id: data.id }),
+        );
+      },
+      onError: (error) => {
+        toast.error(`Failed to create workflow: ${error.message}`);
+      },
+    }),
+  );
 };

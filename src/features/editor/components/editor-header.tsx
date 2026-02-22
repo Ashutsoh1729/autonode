@@ -12,12 +12,16 @@ import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   useSuspenceWorkflow,
+  useUpdateEditorState,
   useUpdateWorkflowName,
 } from "@/features/workflows/hooks/use-workflows";
 import { SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useAtomValue } from "jotai";
+import { editorAtom } from "../store/atoms";
+import { NodeTypeValue } from "@/lib/node-components";
 
 export const EditorNameInput = ({ workflowId }: { workflowId: number }) => {
   const { data: workflow } = useSuspenceWorkflow(workflowId);
@@ -51,6 +55,7 @@ export const EditorNameInput = ({ workflowId }: { workflowId: number }) => {
         name: name,
       });
     } catch (error) {
+      console.log(error);
       setName(workflow.name);
     } finally {
       setIsEditing(false);
@@ -110,9 +115,34 @@ export const EditorBreadcrumbs = ({ workflowId }: { workflowId: number }) => {
 };
 
 export const EditorSaveButton = ({ workflowId }: { workflowId: number }) => {
+  const editor = useAtomValue(editorAtom);
+  const saveWorkflow = useUpdateEditorState();
+
+  const handleSave = () => {
+    if (!editor) return;
+
+    const nodes = editor.getNodes();
+    const edges = editor.getEdges();
+
+    saveWorkflow.mutate({
+      id: workflowId,
+      nodes: nodes.map(({ id, position, type, data }) => ({
+        id,
+        position,
+        data,
+        type: type as NodeTypeValue | undefined,
+      })),
+      edges,
+    });
+  };
+
   return (
     <div className="ml-auto">
-      <Button size={"sm"} onClick={() => {}} disabled={false}>
+      <Button
+        size={"sm"}
+        onClick={handleSave}
+        disabled={saveWorkflow.isPending}
+      >
         <SaveIcon className="size-4" />
         Save
       </Button>
