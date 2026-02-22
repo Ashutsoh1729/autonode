@@ -8,6 +8,11 @@ import { NodeStatus } from "@/components/react-flow/node-status-indicator";
 export const ManualTriggerNode = memo((props: NodeProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const nodeStatus: NodeStatus = "loading";
+
+  const handleOpenSettings = () => {
+    setDialogOpen(true);
+  };
+
   return (
     <>
       <ManualTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
@@ -15,11 +20,8 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
         icon={MousePointerIcon}
         name={"When clicking 'Execute Workflow'"}
         description={""}
-        // TODO: Add the properties
-        // onDoubleClick={()=>{}}
-        onSettings={() => {
-          setDialogOpen(true);
-        }}
+        onDoubleClick={handleOpenSettings}
+        onSettings={handleOpenSettings}
         status={nodeStatus}
         {...props}
       />

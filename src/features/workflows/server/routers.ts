@@ -33,7 +33,6 @@ export const workflowsRouter = createTRPCRouter({
           workflowId: workflowsData[0].id,
           type: "INITIAL",
           position: { x: 0, y: 0 },
-          // TODO: You have to change it
         })
         .returning();
       const finalData = {

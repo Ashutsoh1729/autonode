@@ -37,7 +37,6 @@ export const BaseExecutionNode = memo(
     // we can use the useReactFlow hook, as this node is inside the ReactFlow Component
     const { setNodes, setEdges } = useReactFlow();
 
-    //  TODO: Add handleDelete
     const handleDelete = () => {
       setNodes((nodes) => {
         const updatedNodes = nodes.filter((node) => node.id !== id);
@@ -58,7 +57,6 @@ export const BaseExecutionNode = memo(
         onDelete={handleDelete}
         onSettings={onSettings}
       >
-        {/*  TODO: Warp under node status indicator  */}
         <NodeStatusIndicator status={status} variant="border">
           <BaseNode onDoubleClick={onDoubleClick}>
             <BaseNodeContent>

@@ -7,8 +7,6 @@ interface useEntitySearchProps<T extends { search: string; page: number }> {
   debounceMs?: number;
 }
 
-//  TODO: Complete The Entity Search Hook
-
 export function useEntitySearch<
   T extends {
     search: string;
