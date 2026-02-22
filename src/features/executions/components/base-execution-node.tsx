@@ -7,6 +7,10 @@ import Image from "next/image";
 import { BaseHandle } from "@/components/base-handle";
 import { WorkflowNode } from "@/components/react-flow/workflow-node";
 import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
+import {
+  NodeStatus,
+  NodeStatusIndicator,
+} from "@/components/react-flow/node-status-indicator";
 
 interface BaseExecutionNodeProps extends NodeProps {
   id: string;
@@ -14,7 +18,7 @@ interface BaseExecutionNodeProps extends NodeProps {
   name: string;
   description: string;
   children?: ReactNode;
-  // status?: NodeStatus; // TODO: it will be implemented when we will implement real time pub-sub messaging
+  status?: NodeStatus;
   onSettings?: () => void;
   onDoubleClick?: () => void;
 }
@@ -24,6 +28,7 @@ export const BaseExecutionNode = memo(
     id,
     icon: Icon,
     name,
+    status,
     description,
     children,
     onSettings,
@@ -54,26 +59,28 @@ export const BaseExecutionNode = memo(
         onSettings={onSettings}
       >
         {/*  TODO: Warp under node status indicator  */}
-        <BaseNode onDoubleClick={onDoubleClick}>
-          <BaseNodeContent>
-            {typeof Icon === "string" ? (
-              <Image src={Icon} width={16} height={16} alt={name} />
-            ) : (
-              <Icon className="size-4 text-muted-foreground " />
-            )}
-            {children}
-            <BaseHandle
-              type={"target"}
-              id={"target-1"}
-              position={Position.Left}
-            />
-            <BaseHandle
-              type={"source"}
-              id={"source-1"}
-              position={Position.Right}
-            />
-          </BaseNodeContent>
-        </BaseNode>
+        <NodeStatusIndicator status={status} variant="border">
+          <BaseNode onDoubleClick={onDoubleClick}>
+            <BaseNodeContent>
+              {typeof Icon === "string" ? (
+                <Image src={Icon} width={16} height={16} alt={name} />
+              ) : (
+                <Icon className="size-4 text-muted-foreground " />
+              )}
+              {children}
+              <BaseHandle
+                type={"target"}
+                id={"target-1"}
+                position={Position.Left}
+              />
+              <BaseHandle
+                type={"source"}
+                id={"source-1"}
+                position={Position.Right}
+              />
+            </BaseNodeContent>
+          </BaseNode>
+        </NodeStatusIndicator>
       </WorkflowNode>
     );
   },

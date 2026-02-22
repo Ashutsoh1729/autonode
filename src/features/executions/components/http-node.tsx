@@ -4,6 +4,7 @@ import { Node, NodeProps } from "@xyflow/react";
 import { memo } from "react";
 import { BaseExecutionNode } from "./base-execution-node";
 import { GlobeIcon } from "lucide-react";
+import { NodeStatus } from "@/components/react-flow/node-status-indicator";
 
 export type HttpRequestNodeData = {
   endpoint?: string;
@@ -16,6 +17,7 @@ type HttpRequestNodeType = Node<HttpRequestNodeData>;
 
 export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const NodeData = props.data;
+  const nodeStatus: NodeStatus = "error";
   const description = NodeData.endpoint
     ? `${NodeData.method || "GET"}:${NodeData.endpoint}`
     : "Not Configured";
@@ -28,6 +30,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
         description={description}
         onSettings={() => {}}
         onDoubleClick={() => {}}
+        status={nodeStatus}
         {...props}
       />
     </>
