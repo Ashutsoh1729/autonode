@@ -8,8 +8,10 @@ reviews:
   poem: true
   review_status: true
   review_details: false
+  sequence_diagrams: true
   auto_review:
     enabled: true
     drafts: false
+
 chat:
   auto_reply: true

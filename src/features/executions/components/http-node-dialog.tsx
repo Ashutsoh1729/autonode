@@ -39,31 +39,27 @@ const formSchema = z.object({
   body: z.string().optional(), // TODO: add refine later
 });
 
-export type formSchemaType = z.infer<typeof formSchema>;
+export type HttpNodeFormSchemaType = z.infer<typeof formSchema>;
 
 interface HttpExecutionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: formSchemaType) => void;
-  defaultMethod?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  defaultEndpoint?: string;
-  defaultBody?: string;
+  onSubmit: (values: HttpNodeFormSchemaType) => void;
+  defaultVlaues?: Partial<HttpNodeFormSchemaType>
 }
 
 export const HttpExecutionDialog = ({
   open,
   onOpenChange,
   onSubmit,
-  defaultBody,
-  defaultMethod = "GET",
-  defaultEndpoint,
+  defaultVlaues = {},
 }: HttpExecutionDialogProps) => {
-  const form = useForm<formSchemaType>({
+  const form = useForm<HttpNodeFormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      body: defaultBody ?? "",
-      method: defaultMethod ?? "GET",
-      endpoint: defaultEndpoint ?? "",
+      body: defaultVlaues?.body ?? "",
+      method: defaultVlaues?.method ?? "GET",
+      endpoint: defaultVlaues?.endpoint ?? "",
     },
   });
 
@@ -71,20 +67,20 @@ export const HttpExecutionDialog = ({
   useEffect(() => {
     if (open) {
       form.reset({
-        endpoint: defaultEndpoint ?? "",
-        method: defaultMethod ?? "GET",
-        body: defaultBody ?? "",
+        endpoint: defaultVlaues?.endpoint ?? "",
+        method: defaultVlaues?.method ?? "GET",
+        body: defaultVlaues?.body ?? "",
       });
     }
 
     return () => { };
-  }, [open, defaultBody, defaultMethod, defaultEndpoint, form]);
+  }, [open, defaultVlaues, form]);
 
   // to show some dynamic fields depending upon the method field
   const watchMethod = form.watch("method");
   const showBodyField = ["POST", "PATCH", "PUT"].includes(watchMethod);
 
-  const handleSubmit = (values: formSchemaType) => {
+  const handleSubmit = (values: HttpNodeFormSchemaType) => {
     onSubmit(values);
     onOpenChange(false);
   };

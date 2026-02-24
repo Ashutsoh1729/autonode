@@ -5,7 +5,7 @@ import { memo, useState } from "react";
 import { BaseExecutionNode } from "./base-execution-node";
 import { GlobeIcon } from "lucide-react";
 import { NodeStatus } from "@/components/react-flow/node-status-indicator";
-import { formSchemaType, HttpExecutionDialog } from "./http-node-dialog";
+import { HttpNodeFormSchemaType, HttpExecutionDialog } from "./http-node-dialog";
 
 export type HttpRequestNodeData = {
   endpoint?: string;
@@ -21,12 +21,12 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
 
   const { setNodes } = useReactFlow();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const nodeStatus: NodeStatus = "error";
+  const nodeStatus: NodeStatus = "initial";
   const description = NodeData.endpoint
     ? `${NodeData.method || "GET"}:${NodeData.endpoint}`
     : "Not Configured";
 
-  const handleSubmit = (values: formSchemaType) => {
+  const handleSubmit = (values: HttpNodeFormSchemaType) => {
     setNodes((nodes) =>
       nodes.map((node) => {
         if (node.id === props.id) {
@@ -52,9 +52,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleSubmit}
-        defaultEndpoint={NodeData.endpoint} //  TODO: Check whether it can be improved
-        defaultMethod={NodeData.method}
-        defaultBody={NodeData.body}
+        defaultVlaues={NodeData}
       />
       <BaseExecutionNode
         icon={GlobeIcon}

@@ -12,8 +12,39 @@ import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
 import { Edge, Node } from "@xyflow/react";
 import { createId } from "@paralleldrive/cuid2";
+import { inngest } from "@/inngest/client";
 
 export const workflowsRouter = createTRPCRouter({
+
+  execute: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const workflow = await db.query.workflows.findFirst({
+        where: and(
+          eq(workflows.id, input.id),
+          eq(workflows.userId, ctx.session.user.id),
+        ),
+      });
+
+      if (!workflow) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
+        });
+      }
+
+      await inngest.send({
+        name: "workflow/execute",
+        data: {
+          workflowId: workflow.id,
+        },
+      });
+
+      return workflow;
+    }),
+
+
+
   // creating new workflow
   // status - Working Fine
   create: premiumProcedure.mutation(async ({ ctx }) => {

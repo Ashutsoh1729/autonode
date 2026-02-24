@@ -1,16 +1,53 @@
+import { NonRetriableError } from "inngest";
 import { inngest } from "./client";
+import { db } from "@/db";
+import { workflows } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { topologicalSort } from "./utils";
+import { getExecutor } from "@/features/executions/lib/executor-registory";
 
 export { aiGenerateText } from "./functions/generate-text";
 
-export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
+export const executeWorkflow = inngest.createFunction(
+  { id: "execute-workflow" },
+  { event: "workflow/execute" },
   async ({ event, step }) => {
-    // suppose it is scraping the youtube
-    await step.sleep("wait-a-moment", "5s");
+    const workflowId = event.data.workflowId;
 
-    // suppose it is call to llm
-    await step.sleep("wait-a-moment", "5s");
-    return { message: `Hello ${event.data.email}!` };
+    if (!workflowId) {
+      throw new NonRetriableError("Workflow ID is required");
+    }
+
+    const nodes = await step.run("run-workflow", async () => {
+      const workflow = await db.query.workflows.findFirst({
+        with: {
+          nodes: true,
+          connections: true,
+        },
+        where: eq(workflows.id, workflowId),
+      });
+      // NOTE: Consider for if the database connection is busy, how to retry it for some time, normal error will let the inngest to try for atleast 3 times
+      if (!workflow) {
+        throw new Error("Workflow not found");
+      }
+
+      const sortedNodes = topologicalSort(workflow.nodes, workflow.connections);
+      return sortedNodes;
+    });
+
+    let context = event.data.initialData || {};
+
+    for (const node of nodes) {
+      const executor = getExecutor(node.type);
+      context = await executor({
+        //  TODO: current patch up work
+        data: node.data as Record<string, unknown>,
+        nodeId: node.id,
+        context,
+        step,
+      });
+    }
+
+    return context;
   },
 );
