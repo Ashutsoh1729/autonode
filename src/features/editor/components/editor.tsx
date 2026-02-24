@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -23,6 +23,7 @@ import { nodeComponents } from "@/lib/node-components";
 import { AddNodeButton } from "@/components/react-flow/add-node-btn";
 import { useSetAtom } from "jotai";
 import { editorAtom } from "../store/atoms";
+import { ExecutionWorkflowBtn } from "./execution-workflow-btn";
 
 export const EditorLoading = () => {
   return <LoadingView message="Loading editor..." />;
@@ -56,6 +57,8 @@ const Editor = ({ workflowId }: { workflowId: number }) => {
       setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
+
+  const hasManualTrigger = useMemo(() => nodes.some((node) => node.type === "MANUAL_TRIGGER"), [nodes]);
   return (
     <div className="h-full w-full">
       <ReactFlow
@@ -77,7 +80,13 @@ const Editor = ({ workflowId }: { workflowId: number }) => {
         <Background />
         <Controls className="mb-16 ml-4" />
         <Panel position="top-right">
-          <AddNodeButton />
+          <div className="flex items-center gap-2">
+            <AddNodeButton />
+          </div>
+
+        </Panel>
+        <Panel position="bottom-center">
+          {hasManualTrigger && <ExecutionWorkflowBtn workflowId={workflowId} />}
         </Panel>
       </ReactFlow>
     </div>

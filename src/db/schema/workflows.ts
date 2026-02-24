@@ -79,3 +79,7 @@ export const connections = pgTable(
     ),
   ],
 );
+
+export type NodeType = typeof nodes.$inferSelect;
+export type ConnectionType = typeof connections.$inferSelect;
+export type WorkflowType = typeof workflows.$inferSelect;
