@@ -49,23 +49,23 @@ interface HttpExecutionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: HttpNodeFormSchemaType) => void;
-  defaultVlaues?: Partial<HttpNodeFormSchemaType>
+  defaultValues?: Partial<HttpNodeFormSchemaType>
 }
 
 export const HttpExecutionDialog = ({
   open,
   onOpenChange,
   onSubmit,
-  defaultVlaues = {},
+  defaultValues = {},
 }: HttpExecutionDialogProps) => {
 
   const form = useForm<HttpNodeFormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      variableName: defaultVlaues?.variableName ?? "",
-      body: defaultVlaues?.body ?? "",
-      method: defaultVlaues?.method ?? "GET",
-      endpoint: defaultVlaues?.endpoint ?? "",
+      variableName: defaultValues?.variableName ?? "",
+      body: defaultValues?.body ?? "",
+      method: defaultValues?.method ?? "GET",
+      endpoint: defaultValues?.endpoint ?? "",
     },
   });
 
@@ -75,15 +75,15 @@ export const HttpExecutionDialog = ({
   useEffect(() => {
     if (open) {
       form.reset({
-        variableName: defaultVlaues?.variableName ?? "",
-        endpoint: defaultVlaues?.endpoint ?? "",
-        method: defaultVlaues?.method ?? "GET",
-        body: defaultVlaues?.body ?? "",
+        variableName: defaultValues?.variableName ?? "",
+        endpoint: defaultValues?.endpoint ?? "",
+        method: defaultValues?.method ?? "GET",
+        body: defaultValues?.body ?? "",
       });
     }
 
     return () => { };
-  }, [open, defaultVlaues, form]);
+  }, [open, defaultValues, form]);
 
   // to show some dynamic fields depending upon the method field
   const watchMethod = form.watch("method");
