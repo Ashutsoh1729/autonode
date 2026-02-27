@@ -8,6 +8,8 @@ import { NodeStatus } from "@/components/react-flow/node-status-indicator";
 import { HttpNodeFormSchemaType, HttpExecutionDialog } from "./http-node-dialog";
 
 export type HttpRequestNodeData = {
+
+  variableName?: string; // it is set to optional as it may not be required in some nodes
   endpoint?: string;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: string;
@@ -56,7 +58,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
       />
       <BaseExecutionNode
         icon={GlobeIcon}
-        name={"HTTP Request"}
+        name={NodeData.variableName || "HTTP Request"}
         description={description}
         onSettings={handleOpenSettings}
         onDoubleClick={handleOpenSettings}
