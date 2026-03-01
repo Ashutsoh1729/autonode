@@ -34,6 +34,10 @@ import { useReactFlow } from "@xyflow/react";
 import { useEffect } from "react";
 
 const formSchema = z.object({
+  variableName: z
+    .string()
+    .min(1, "Variable name is required")
+    .regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores"),
   endpoint: z.url("Please enter a valid url"),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
   body: z.string().optional(), // TODO: add refine later
@@ -45,36 +49,42 @@ interface HttpExecutionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: HttpNodeFormSchemaType) => void;
-  defaultVlaues?: Partial<HttpNodeFormSchemaType>
+  defaultValues?: Partial<HttpNodeFormSchemaType>
 }
 
 export const HttpExecutionDialog = ({
   open,
   onOpenChange,
   onSubmit,
-  defaultVlaues = {},
+  defaultValues = {},
 }: HttpExecutionDialogProps) => {
+
   const form = useForm<HttpNodeFormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      body: defaultVlaues?.body ?? "",
-      method: defaultVlaues?.method ?? "GET",
-      endpoint: defaultVlaues?.endpoint ?? "",
+      variableName: defaultValues?.variableName ?? "",
+      body: defaultValues?.body ?? "",
+      method: defaultValues?.method ?? "GET",
+      endpoint: defaultValues?.endpoint ?? "",
     },
   });
+
+  const watchVariableName = form.watch("variableName");
 
   // Reset the values when the dialog opens with new defaults
   useEffect(() => {
     if (open) {
       form.reset({
-        endpoint: defaultVlaues?.endpoint ?? "",
-        method: defaultVlaues?.method ?? "GET",
-        body: defaultVlaues?.body ?? "",
+        variableName: defaultValues?.variableName ?? "",
+        endpoint: defaultValues?.endpoint ?? "",
+        method: defaultValues?.method ?? "GET",
+        body: defaultValues?.body ?? "",
       });
     }
 
     return () => { };
-  }, [open, defaultVlaues, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // to show some dynamic fields depending upon the method field
   const watchMethod = form.watch("method");
@@ -99,6 +109,25 @@ export const HttpExecutionDialog = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-8 mt-4 "
           >
+            <FormField
+              control={form.control}
+              name="variableName"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Variable Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter a variable name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {`{{${watchVariableName == "" ? "variableName" : watchVariableName}.httpResponse.data}}`}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="method"

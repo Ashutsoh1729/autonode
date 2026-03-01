@@ -14,8 +14,17 @@ export const httpNodeExecutor: NodeExecutor<HttpRequestNodeData> = async ({
     throw new NonRetriableError("No http endpoint is configured");
   }
 
+
+  if (!data.variableName) {
+    throw new NonRetriableError("No http variable name is configured");
+  }
+
+  if (!data.endpoint) {
+    throw new NonRetriableError("No http endpoint is configured");
+  }
+
   const result = await step.run("http-trigger", async () => {
-    const method = data.method || "GET";
+    const method = data.method || "GET"; // default to GET
     const endpoint = data.endpoint!;
     const options: Options = {
       method,
@@ -23,6 +32,9 @@ export const httpNodeExecutor: NodeExecutor<HttpRequestNodeData> = async ({
 
     if (["POST", "PUT", "PATCH"].includes(method)) {
       options.json = data.body;
+      options.headers = {
+        "Content-Type": "application/json",
+      };
     }
 
     const response = await ky(endpoint, options);
@@ -31,13 +43,18 @@ export const httpNodeExecutor: NodeExecutor<HttpRequestNodeData> = async ({
       ? JSON.stringify(await response.json())
       : await response.text();
 
-    return {
-      ...context,
+    const responsePayload = {
       httpResponse: {
         status: response.status,
         statusText: response.statusText,
         body: responseText,
-      },
+      }
+    }
+
+    // TODO; Look why is it showing error
+    return {
+      ...context,
+      [data.variableName]: responsePayload,
     };
   });
 

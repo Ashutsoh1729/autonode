@@ -52,7 +52,7 @@ export const BaseExecutionNode = memo(
 
     return (
       <WorkflowNode
-        name="name"
+        name={name}
         description={description}
         onDelete={handleDelete}
         onSettings={onSettings}
