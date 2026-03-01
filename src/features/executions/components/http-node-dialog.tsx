@@ -83,7 +83,8 @@ export const HttpExecutionDialog = ({
     }
 
     return () => { };
-  }, [open, defaultValues, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // to show some dynamic fields depending upon the method field
   const watchMethod = form.watch("method");

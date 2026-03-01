@@ -19,8 +19,12 @@ export const httpNodeExecutor: NodeExecutor<HttpRequestNodeData> = async ({
     throw new NonRetriableError("No http variable name is configured");
   }
 
+  if (!data.endpoint) {
+    throw new NonRetriableError("No http endpoint is configured");
+  }
+
   const result = await step.run("http-trigger", async () => {
-    const method = data.method || "GET";
+    const method = data.method || "GET"; // default to GET
     const endpoint = data.endpoint!;
     const options: Options = {
       method,
@@ -48,17 +52,9 @@ export const httpNodeExecutor: NodeExecutor<HttpRequestNodeData> = async ({
     }
 
     // TODO; Look why is it showing error
-    if (data.variableName) {
-      return {
-        ...context,
-        [data.variableName]: responsePayload,
-      };
-    }
-
-    // fallback to httpResponse
     return {
       ...context,
-      unnamedHttpResponse: responsePayload,
+      [data.variableName]: responsePayload,
     };
   });
 
