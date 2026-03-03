@@ -39,6 +39,7 @@ export const executeWorkflow = inngest.createFunction(
 
     for (const node of nodes) {
       const executor = getExecutor(node.type);
+      // here the executor in itself returns the context
       context = await executor({
         //  TODO: current patch up work
         data: node.data as Record<string, unknown>,

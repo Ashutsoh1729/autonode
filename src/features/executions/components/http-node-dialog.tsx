@@ -30,14 +30,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useReactFlow } from "@xyflow/react";
 import { useEffect } from "react";
 
 const formSchema = z.object({
   variableName: z
     .string()
     .min(1, "Variable name is required")
-    .regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores"),
+    .regex(
+      /^[a-zA-Z_$][a-zA-Z0-9_$]*$/,
+      "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
+    ),
   endpoint: z.url("Please enter a valid url"),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
   body: z.string().optional(), // TODO: add refine later
@@ -49,7 +51,7 @@ interface HttpExecutionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: HttpNodeFormSchemaType) => void;
-  defaultValues?: Partial<HttpNodeFormSchemaType>
+  defaultValues?: Partial<HttpNodeFormSchemaType>;
 }
 
 export const HttpExecutionDialog = ({
@@ -58,7 +60,6 @@ export const HttpExecutionDialog = ({
   onSubmit,
   defaultValues = {},
 }: HttpExecutionDialogProps) => {
-
   const form = useForm<HttpNodeFormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,7 +83,7 @@ export const HttpExecutionDialog = ({
       });
     }
 
-    return () => { };
+    return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -97,7 +98,8 @@ export const HttpExecutionDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      {/* <DialogContent className=" lg:w-[70vw] h-[90vh] scroll overflow-y-auto "> */}
+      <DialogContent className="lg:w-[70vw] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-500 [&::-webkit-scrollbar-thumb]:rounded-full">
         <DialogHeader>
           <DialogTitle>HTTP Request</DialogTitle>
           <DialogDescription>
@@ -116,10 +118,7 @@ export const HttpExecutionDialog = ({
                 <FormItem className="w-full">
                   <FormLabel>Variable Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter a variable name"
-                      {...field}
-                    />
+                    <Input placeholder="Enter a variable name" {...field} />
                   </FormControl>
                   <FormDescription>
                     {`{{${watchVariableName == "" ? "variableName" : watchVariableName}.httpResponse.data}}`}
@@ -192,7 +191,7 @@ export const HttpExecutionDialog = ({
                       placeholder={`{  "key": "value",  "name" "{{variables}}"}`}
                       className="min-h-[120px] text-sm font-mono"
                     />
-                    <FormDescription>The body for this request</FormDescription>
+                    <FormDescription>{`JSON with template variables. Use {{variables}} for simple variables and {{json.variable}} to stringify the object`}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
