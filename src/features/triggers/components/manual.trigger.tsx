@@ -7,7 +7,6 @@ import { NodeStatus } from "@/components/react-flow/node-status-indicator";
 
 export const ManualTriggerNode = memo((props: NodeProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const nodeStatus: NodeStatus = "loading";
 
   const handleOpenSettings = () => {
     setDialogOpen(true);
@@ -22,7 +21,6 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
         description={"It is working"}
         onDoubleClick={handleOpenSettings}
         onSettings={handleOpenSettings}
-        status={nodeStatus}
         {...props}
       />
     </>

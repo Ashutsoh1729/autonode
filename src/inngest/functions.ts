@@ -5,13 +5,14 @@ import { workflows } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { topologicalSort } from "./utils";
 import { getExecutor } from "@/features/executions/lib/executor-registory";
+import { httpRequestChannel } from "./channels/http-request";
 
 export { aiGenerateText } from "./functions/generate-text";
 
 export const executeWorkflow = inngest.createFunction(
-  { id: "execute-workflow" },
-  { event: "workflow/execute" },
-  async ({ event, step }) => {
+  { id: "execute-http-workflow" },
+  { event: "workflow/execute-http", channels: [httpRequestChannel()] },
+  async ({ event, step, publish }) => {
     const workflowId = event.data.workflowId;
 
     if (!workflowId) {
@@ -46,6 +47,7 @@ export const executeWorkflow = inngest.createFunction(
         nodeId: node.id,
         context,
         step,
+        publish,
       });
     }
 

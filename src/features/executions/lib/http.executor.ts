@@ -3,6 +3,7 @@ import { HttpRequestNodeData } from "../components/http-node";
 import { NonRetriableError } from "inngest";
 import ky, { type Options } from "ky";
 import Handlebars from "handlebars";
+import { httpRequestChannel } from "@/inngest/channels/http-request";
 
 // TODO: Modify if any additional functionality is needed
 
@@ -19,17 +20,18 @@ export const httpNodeExecutor: NodeExecutor<HttpRequestNodeData> = async ({
   nodeId,
   context,
   step,
+  publish,
 }) => {
+  await publish(httpRequestChannel().status({ nodeId, status: "loading" }));
+
   if (!data.endpoint) {
+    await publish(httpRequestChannel().status({ nodeId, status: "error" }));
     throw new NonRetriableError("No http endpoint is configured");
   }
 
   if (!data.variableName) {
+    await publish(httpRequestChannel().status({ nodeId, status: "error" }));
     throw new NonRetriableError("No http variable name is configured");
-  }
-
-  if (!data.endpoint) {
-    throw new NonRetriableError("No http endpoint is configured");
   }
 
   const result = await step.run("http-trigger", async () => {
@@ -76,6 +78,13 @@ export const httpNodeExecutor: NodeExecutor<HttpRequestNodeData> = async ({
   //  TODO: Publish "loading " state for http trigger
 
   // TODO: Publish "success" state for http trigger
+
+  await publish(
+    httpRequestChannel().status({
+      nodeId,
+      status: "success",
+    }),
+  );
 
   return result;
 };
