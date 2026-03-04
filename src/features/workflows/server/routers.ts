@@ -15,7 +15,6 @@ import { createId } from "@paralleldrive/cuid2";
 import { inngest } from "@/inngest/client";
 
 export const workflowsRouter = createTRPCRouter({
-
   execute: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
@@ -34,7 +33,7 @@ export const workflowsRouter = createTRPCRouter({
       }
 
       await inngest.send({
-        name: "workflow/execute",
+        name: "workflow/execute-http",
         data: {
           workflowId: workflow.id,
         },
@@ -42,8 +41,6 @@ export const workflowsRouter = createTRPCRouter({
 
       return workflow;
     }),
-
-
 
   // creating new workflow
   // status - Working Fine
