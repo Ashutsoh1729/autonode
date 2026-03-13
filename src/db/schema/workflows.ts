@@ -22,6 +22,17 @@ export const workflows = pgTable("workflows", {
 
 // relations for query
 
+// credentials
+export const credentials = pgTable("credentials", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  value: text("value").notNull(),
+  nodeId: text("node_id").references(() => nodes.id),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // node tables
 
 export const nodeType = pgEnum("node_types", [

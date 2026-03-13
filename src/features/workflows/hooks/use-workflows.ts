@@ -96,6 +96,25 @@ export const useSuspenceWorkflow = (id: number) => {
 };
 
 /*
+ * Hook to execute the workflow
+ */
+
+export const useExecuteWorkflow = () => {
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.workflows.execute.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Workflow ${data.name} Executed Successfully`);
+      },
+      onError: (error) => {
+        toast.error(`Failed to execute workflow: ${error.message}`);
+      },
+    }),
+  );
+};
+
+/*
  * Hook to update editor state
  */
 export const useUpdateEditorState = () => {
@@ -119,20 +138,3 @@ export const useUpdateEditorState = () => {
   );
 };
 
-
-
-export const useExecuteWorkflow = () => {
-  const trpc = useTRPC();
-
-  return useMutation(
-    trpc.workflows.execute.mutationOptions({
-      onSuccess: (data) => {
-        toast.success(`Workflow ${data.name} Executed Successfully`);
-
-      },
-      onError: (error) => {
-        toast.error(`Failed to execute workflow: ${error.message}`);
-      },
-    }),
-  );
-};
