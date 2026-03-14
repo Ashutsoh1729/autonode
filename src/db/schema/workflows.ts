@@ -21,13 +21,26 @@ export const workflows = pgTable("workflows", {
 });
 
 // relations for query
+//
+
+export const credentialType = pgEnum("credentials_type", [
+  "OPENAI",
+  "ANTHROPIC",
+  "GEMINI",
+]);
 
 // credentials
 export const credentials = pgTable("credentials", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   value: text("value").notNull(),
-  nodeId: text("node_id").references(() => nodes.id),
+  provider: credentialType("provider").default("GEMINI"),
+
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -39,6 +52,7 @@ export const nodeType = pgEnum("node_types", [
   "INITIAL",
   "MANUAL_TRIGGER",
   "HTTP_REQUEST",
+  "AI",
 ]);
 
 export const nodes = pgTable("nodes", {
@@ -46,6 +60,7 @@ export const nodes = pgTable("nodes", {
   workflowId: integer("workflow_id")
     .notNull()
     .references(() => workflows.id, { onDelete: "cascade" }),
+  credentialsId: text("credential_id").references(() => credentials.id),
 
   name: text("name"),
   type: nodeType("type").notNull().default("INITIAL"),

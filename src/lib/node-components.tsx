@@ -10,7 +10,9 @@ export type NodeTypeValue = (typeof nodeType.enumValues)[number];
 const componentMap: Record<NodeTypeValue, React.ComponentType<NodeProps>> = {
   INITIAL: InitialNode,
   MANUAL_TRIGGER: ManualTriggerNode,
+  // TODO: check the error
   HTTP_REQUEST: HttpRequestNode,
+  AI: ManualTriggerNode,
 };
 
 export const nodeComponents = componentMap satisfies NodeTypes;

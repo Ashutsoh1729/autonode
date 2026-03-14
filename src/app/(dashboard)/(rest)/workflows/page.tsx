@@ -35,6 +35,9 @@ export default async function WorkflowPage({ searchParams }: props) {
 
   // void queryClient.prefetchQuery();
 
+  // NOTE: Two main components here are:
+  // 1. WorkflowContainer
+  // 2. WorkflowLists
   return (
     <>
       <WorkflowContainer>

@@ -5,4 +5,7 @@ export const config = {
   localDatabaseUrl: process.env.LOCAL_DATABASE_URL,
   neonDatabaseUrl: process.env.NEON_DATABASE_URL,
   polarAccessToken: process.env.POLAR_ACCESS_TOKEN,
+  encryption: {
+    masterKey: process.env.MASTER_KEY!,
+  },
 };
