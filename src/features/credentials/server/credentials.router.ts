@@ -1,12 +1,5 @@
 import { db } from "@/db";
-import crypto from "crypto";
-import {
-  connections,
-  credentials,
-  nodes,
-  nodeType,
-  workflows,
-} from "@/db/schema";
+import { credentials } from "@/db/schema";
 import { PAGINATION } from "@/lib/constants";
 import {
   createTRPCRouter,
@@ -15,10 +8,7 @@ import {
 } from "@/trpc/init";
 import { and, desc, eq, ilike } from "drizzle-orm";
 import * as z from "zod";
-import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
-import { Edge, Node } from "@xyflow/react";
-import { createId } from "@paralleldrive/cuid2";
 import { decrypt, encrypt } from "@/lib/security";
 
 export const credentialsRouter = createTRPCRouter({
@@ -94,7 +84,7 @@ export const credentialsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const credential = await db.query.credentials.findFirst({
-        where: and(eq(credentials.id, credentials.id)),
+        where: and(eq(credentials.id, input.id)),
       });
 
       if (!credential) {
