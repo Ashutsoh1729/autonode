@@ -3,7 +3,6 @@ import { BaseTriggerNode } from "./base-trigger-node";
 import { memo, useState } from "react";
 import { MousePointerIcon } from "lucide-react";
 import { ManualTriggerDialog } from "./manual-dialog";
-import { NodeStatus } from "@/components/react-flow/node-status-indicator";
 
 export const ManualTriggerNode = memo((props: NodeProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);

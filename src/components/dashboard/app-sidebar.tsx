@@ -55,7 +55,7 @@ export function AppHeader() {
 export function AppSidebar() {
   const router = useRouter();
   const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
-  console.log(hasActiveSubscription);
+  console.log(hasActiveSubscription, "It is comming from app sidebar");
 
   return (
     <Sidebar>

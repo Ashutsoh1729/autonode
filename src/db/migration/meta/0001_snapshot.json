@@ -1,6 +1,6 @@
 {
-  "id": "60fdbb46-69d6-472e-b661-8b26459ee8ca",
-  "prevId": "869a7ce3-4276-4451-83a1-3367319bad7a",
+  "id": "f6f14b5d-e906-4631-97ba-21768fc3be5b",
+  "prevId": "d591c1f9-1003-460a-81d1-cd75376369b8",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -324,17 +324,17 @@
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "from_node_id": {
           "name": "from_node_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "to_node_id": {
           "name": "to_node_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -345,8 +345,8 @@
           "notNull": false,
           "default": "'main'"
         },
-        "from_input": {
-          "name": "from_input",
+        "to_input": {
+          "name": "to_input",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -417,11 +417,84 @@
           "columns": [
             "from_node_id",
             "to_node_id",
-            "from_input",
+            "to_input",
             "from_output"
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.credentials": {
+      "name": "credentials",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "credentials_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'GEMINI'"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "credentials_user_id_user_id_fk": {
+          "name": "credentials_user_id_user_id_fk",
+          "tableFrom": "credentials",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -432,7 +505,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
@@ -442,11 +515,17 @@
           "primaryKey": false,
           "notNull": true
         },
+        "credential_id": {
+          "name": "credential_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "type": {
           "name": "type",
@@ -497,6 +576,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "nodes_credential_id_credentials_id_fk": {
+          "name": "nodes_credential_id_credentials_id_fk",
+          "tableFrom": "nodes",
+          "tableTo": "credentials",
+          "columnsFrom": [
+            "credential_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -567,13 +659,23 @@
     }
   },
   "enums": {
+    "public.credentials_type": {
+      "name": "credentials_type",
+      "schema": "public",
+      "values": [
+        "OPENAI",
+        "ANTHROPIC",
+        "GEMINI"
+      ]
+    },
     "public.node_types": {
       "name": "node_types",
       "schema": "public",
       "values": [
         "INITIAL",
         "MANUAL_TRIGGER",
-        "HTTP_REQUEST"
+        "HTTP_REQUEST",
+        "AI"
       ]
     }
   },

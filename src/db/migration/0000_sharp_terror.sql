@@ -1,4 +1,5 @@
-CREATE TYPE "public"."node_types" AS ENUM('INITIAL');--> statement-breakpoint
+CREATE TYPE "public"."credentials_type" AS ENUM('OPENAI', 'ANTHROPIC', 'GEMINI');--> statement-breakpoint
+CREATE TYPE "public"."node_types" AS ENUM('INITIAL', 'MANUAL_TRIGGER', 'HTTP_REQUEST', 'AI');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -50,20 +51,30 @@ CREATE TABLE "verification" (
 CREATE TABLE "connections" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"workflow_id" integer NOT NULL,
-	"name" text NOT NULL,
-	"from_node_id" integer NOT NULL,
-	"to_node_id" integer NOT NULL,
+	"name" text,
+	"from_node_id" text NOT NULL,
+	"to_node_id" text NOT NULL,
 	"from_output" text DEFAULT 'main',
-	"from_input" text DEFAULT 'main',
+	"to_input" text DEFAULT 'main',
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "nodes_relation" UNIQUE("from_node_id","to_node_id","from_input","from_output")
+	CONSTRAINT "nodes_relation" UNIQUE("from_node_id","to_node_id","to_input","from_output")
+);
+--> statement-breakpoint
+CREATE TABLE "credentials" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"value" text NOT NULL,
+	"provider" "credentials_type" DEFAULT 'GEMINI',
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "nodes" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"workflow_id" integer NOT NULL,
-	"name" text NOT NULL,
+	"credential_id" text,
+	"name" text,
 	"type" "node_types" DEFAULT 'INITIAL' NOT NULL,
 	"position" jsonb,
 	"data" jsonb DEFAULT '{}'::jsonb,
@@ -85,4 +96,5 @@ ALTER TABLE "connections" ADD CONSTRAINT "connections_workflow_id_workflows_id_f
 ALTER TABLE "connections" ADD CONSTRAINT "connections_from_node_id_nodes_id_fk" FOREIGN KEY ("from_node_id") REFERENCES "public"."nodes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "connections" ADD CONSTRAINT "connections_to_node_id_nodes_id_fk" FOREIGN KEY ("to_node_id") REFERENCES "public"."nodes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "nodes" ADD CONSTRAINT "nodes_workflow_id_workflows_id_fk" FOREIGN KEY ("workflow_id") REFERENCES "public"."workflows"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "nodes" ADD CONSTRAINT "nodes_credential_id_credentials_id_fk" FOREIGN KEY ("credential_id") REFERENCES "public"."credentials"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "workflows" ADD CONSTRAINT "workflows_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
