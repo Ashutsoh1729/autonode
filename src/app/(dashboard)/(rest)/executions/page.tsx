@@ -1,5 +1,5 @@
 const SettingPage = () => {
-  return <div>It will work as the setting page</div>;
+  return <div>It will show the execution history to the user</div>;
 };
 
 export default SettingPage;

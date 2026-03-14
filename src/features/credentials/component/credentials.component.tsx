@@ -10,25 +10,16 @@ import {
   ErrorView,
   LoadingView,
 } from "@/components/entity-components";
-import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { formatDistanceToNow } from "date-fns";
-import {
-  useCreateWorkflow,
-  useRemoveWorkflow,
-  useSuspenceWorkflows,
-} from "@/features/workflows/hooks/use-workflows";
+import { useSuspenceWorkflows } from "@/features/workflows/hooks/use-workflows";
 import { useEntitySearch } from "@/hooks/use-entity-search";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { credentials, workflows } from "@/db/schema";
+import { credentials } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
-import { WorkflowIcon } from "lucide-react";
 import { useWorkflowsParams } from "@/features/workflows/hooks/use-workflows-params";
 import {
   CredentialsInputForm,
   CredentialsInputFormSchemaType,
 } from "./credentials.form";
-import { useState } from "react";
 import {
   useCreateCredential,
   useRemoveCredential,
@@ -252,7 +243,10 @@ export const IndivisualCredentialPageContainter = ({ id }: { id: string }) => {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{singleCredential.name}</CardTitle>
             <div className="flex items-center gap-2">
-              <ProviderLogo provider={singleCredential.provider} size={24} />
+              <ProviderLogo
+                provider={singleCredential.provider}
+                size={singleCredential.provider === "OPENAI" ? 24 : 20}
+              />
               <span className="text-sm text-muted-foreground">
                 {singleCredential.provider ?? "Unknown"}
               </span>

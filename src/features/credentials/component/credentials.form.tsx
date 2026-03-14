@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { ProviderLogo } from "@/lib/logo";
 
 const formSchema = z.object({
   name: z
@@ -142,9 +143,17 @@ export const CredentialsInputForm = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="OPENAI">OPENAI</SelectItem>
-                      <SelectItem value="GEMINI">GEMINI</SelectItem>
-                      <SelectItem value="ANTHROPIC">ANTHROPIC</SelectItem>
+                      <SelectItem value="OPENAI">
+                        <ProviderLogo provider={"OPENAI"} /> OPENAI
+                      </SelectItem>
+                      <SelectItem value="GEMINI">
+                        <ProviderLogo provider={"GEMINI"} size={16} />
+                        GEMINI
+                      </SelectItem>
+                      <SelectItem value="ANTHROPIC">
+                        <ProviderLogo provider={"ANTHROPIC"} size={16} />
+                        ANTHROPIC
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
