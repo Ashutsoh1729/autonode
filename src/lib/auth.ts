@@ -36,4 +36,5 @@ export const auth = betterAuth({
       ],
     }),
   ],
+  trustedOrigins: ["https://solid-bengal-violently.ngrok-free.app"],
 });

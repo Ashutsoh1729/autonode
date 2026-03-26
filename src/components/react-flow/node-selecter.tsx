@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { NodeTypeValue } from "@/lib/node-components";
-import { GlobeIcon, MousePointerIcon } from "lucide-react";
+import { GlobeIcon, MousePointerIcon, Clock } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { useReactFlow } from "@xyflow/react";
 import { toast } from "sonner";
@@ -31,6 +31,13 @@ const triggerNode: NodeTypeOptions[] = [
     description:
       "Runs the flow on clicking a button. Good for getting started.",
     icon: MousePointerIcon,
+  },
+  {
+    type: "CRON_TRIGGER",
+    label: "Schedule Trigger",
+    description:
+      "Runs the flow on a cron schedule. Good for recurring tasks.",
+    icon: Clock,
   },
 ];
 

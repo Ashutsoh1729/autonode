@@ -1,5 +1,8 @@
 procs:
-  inngest:
-    cmd: ["pnpm", "run", "inngest:dev"]
   next:
     cmd: ["pnpm", "dev"]
+  inngest:
+    cmd: ["pnpm", "run", "inngest:dev"]
+  ngrok:
+    shell: "until nc -z localhost 3000; do sleep 0.5; done && ngrok http 3000 --domain=solid-bengal-violently.ngrok-free.app"
+

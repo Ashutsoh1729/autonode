@@ -37,6 +37,8 @@ export const BaseTriggerNode = memo(
     const { setNodes, setEdges } = useReactFlow();
 
     const handleDelete = () => {
+      // TODO: We need to delete the cron jobs, with node id, similar to the node id exists
+
       setNodes((nodes) => {
         const updatedNodes = nodes.filter((node) => node.id !== id);
         return updatedNodes;

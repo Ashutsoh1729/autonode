@@ -51,6 +51,7 @@ export const credentials = pgTable("credentials", {
 export const nodeType = pgEnum("node_types", [
   "INITIAL",
   "MANUAL_TRIGGER",
+  "CRON_TRIGGER",
   "HTTP_REQUEST",
   "AI",
 ]);
@@ -105,6 +106,9 @@ export const connections = pgTable(
     ),
   ],
 );
+
+export type CredentialsEnumType = (typeof credentialType.enumValues)[number];
+export type NodeEnumType = (typeof nodeType.enumValues)[number];
 
 export type NodeType = typeof nodes.$inferSelect;
 export type ConnectionType = typeof connections.$inferSelect;

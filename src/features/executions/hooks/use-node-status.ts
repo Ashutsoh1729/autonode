@@ -7,7 +7,8 @@ interface UseNodeStatusOptions {
   nodeId: string;
   channel: string;
   topic: string;
-  refreshToken: () => Promise<Realtime.Subscribe.Token>; // what is the use of refereshToken here??
+  refreshToken: () => Promise<Realtime.Subscribe.Token>;
+  enabled?: boolean;
 }
 
 export function useNodeStatus({
@@ -15,10 +16,11 @@ export function useNodeStatus({
   channel,
   topic,
   refreshToken,
+  enabled = false,
 }: UseNodeStatusOptions) {
   const { data } = useInngestSubscription({
     refreshToken,
-    enabled: true,
+    enabled,
   });
 
   const status = useMemo<NodeStatus>(() => {
