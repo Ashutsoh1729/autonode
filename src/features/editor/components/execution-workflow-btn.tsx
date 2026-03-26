@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Loader2Icon, PlayIcon } from "lucide-react";
 import { useExecuteWorkflow } from "@/features/workflows/hooks/use-workflows";
+import { useSetAtom } from "jotai";
+import { isExecutingAtom } from "@/features/executions/store/atoms";
 
 export const ExecutionWorkflowBtn = ({
   workflowId,
@@ -10,8 +12,10 @@ export const ExecutionWorkflowBtn = ({
   workflowId: number;
 }) => {
   const executeWorkflow = useExecuteWorkflow();
+  const setIsExecuting = useSetAtom(isExecutingAtom);
 
   function handleExecute() {
+    setIsExecuting(true);
     executeWorkflow.mutate({ id: workflowId });
   }
 

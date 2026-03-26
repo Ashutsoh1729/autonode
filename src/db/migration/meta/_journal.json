@@ -15,6 +15,13 @@
       "when": 1773424489171,
       "tag": "0001_unique_nomad",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774501630227,
+      "tag": "0002_blushing_proteus",
+      "breakpoints": true
     }
   ]
 }

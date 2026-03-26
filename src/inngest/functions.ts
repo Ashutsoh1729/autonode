@@ -9,6 +9,7 @@ import { httpRequestChannel } from "./channels/http-request";
 
 export { aiGenerateText } from "./functions/generate-text";
 
+// TODO: Change the execute-http name, as it is very specific
 export const executeWorkflow = inngest.createFunction(
   { id: "execute-http-workflow" },
   { event: "workflow/execute-http", channels: [httpRequestChannel()] },

@@ -8,8 +8,10 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 import { useWorkflowsParams } from "./use-workflows-params";
+import { isExecutingAtom } from "@/features/executions/store/atoms";
 
 export const useSuspenceWorkflows = () => {
   const trpc = useTRPC();
@@ -101,6 +103,7 @@ export const useSuspenceWorkflow = (id: number) => {
 
 export const useExecuteWorkflow = () => {
   const trpc = useTRPC();
+  const setIsExecuting = useSetAtom(isExecutingAtom);
 
   return useMutation(
     trpc.workflows.execute.mutationOptions({
@@ -109,6 +112,9 @@ export const useExecuteWorkflow = () => {
       },
       onError: (error) => {
         toast.error(`Failed to execute workflow: ${error.message}`);
+      },
+      onSettled: () => {
+        setIsExecuting(false);
       },
     }),
   );

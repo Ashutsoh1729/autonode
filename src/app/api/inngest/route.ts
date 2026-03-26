@@ -5,4 +5,5 @@ import { aiGenerateText, executeWorkflow } from "@/inngest/functions";
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [aiGenerateText, executeWorkflow],
+  baseUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
 });

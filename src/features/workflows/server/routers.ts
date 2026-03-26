@@ -13,6 +13,8 @@ import { TRPCError } from "@trpc/server";
 import { Edge, Node } from "@xyflow/react";
 import { createId } from "@paralleldrive/cuid2";
 import { inngest } from "@/inngest/client";
+import { deleteJob } from "@/features/triggers/cron_job_trigger/lib/cron";
+import { syncCronJobs } from "@/features/triggers/cron_job_trigger/lib/cron-job-sync";
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
@@ -78,7 +80,37 @@ export const workflowsRouter = createTRPCRouter({
 
   remove: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const workflow = await db.query.workflows.findFirst({
+        where: and(
+          eq(workflows.id, input.id),
+          eq(workflows.userId, ctx.session.user.id),
+        ),
+        with: {
+          nodes: true,
+        },
+      });
+
+      if (!workflow) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
+        });
+      }
+
+      for (const node of workflow.nodes) {
+        if (node.type === "CRON_TRIGGER") {
+          const nodeData = node.data as Record<string, unknown>;
+          if (nodeData.jobId) {
+            try {
+              await deleteJob(nodeData.jobId as number);
+            } catch (e) {
+              console.error("Failed to delete cron job:", e);
+            }
+          }
+        }
+      }
+
       return db
         .delete(workflows)
         .where(
@@ -121,7 +153,6 @@ export const workflowsRouter = createTRPCRouter({
         ),
       });
 
-      // throwing error
       if (!workflow) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -129,16 +160,56 @@ export const workflowsRouter = createTRPCRouter({
         });
       }
 
-      return await db.transaction(async (tx) => {
-        // first delete all the nodes
+      const result = await db.transaction(async (tx) => {
+        const existingCronNodes = await tx
+          .select()
+          .from(nodes)
+          .where(
+            and(
+              eq(nodes.workflowId, workflow.id),
+              eq(nodes.type, "CRON_TRIGGER"),
+            ),
+          );
+
+        const existingCronJobIds = existingCronNodes.map((n) => {
+          const nodeData = n.data as Record<string, unknown>;
+          return nodeData.jobId as number | undefined;
+        });
+
         await tx.delete(nodes).where(eq(nodes.workflowId, workflow.id));
 
-        // create new nodes
-        await tx
-          .insert(nodes)
-          .values(data.map((node) => ({ ...node, workflowId: workflow.id })));
+        const cronJobIdsToAssign = existingCronJobIds.filter(
+          (id): id is number => id !== undefined,
+        );
+        let cronJobIndex = 0;
 
-        // now we have to create connections
+        const newNodesData = data.map((node) => {
+          const nodeData = node.data as Record<string, unknown>;
+          let jobId: number | undefined;
+
+          if (
+            node.type === "CRON_TRIGGER" &&
+            cronJobIndex < cronJobIdsToAssign.length
+          ) {
+            jobId = cronJobIdsToAssign[cronJobIndex];
+            cronJobIndex++;
+          }
+
+          return {
+            ...node,
+            workflowId: workflow.id,
+            data: {
+              ...nodeData,
+              ...(jobId !== undefined && { jobId }),
+            },
+          };
+        });
+
+        const returningNodes = await tx
+          .insert(nodes)
+          .values(newNodesData)
+          .returning();
+
         if (edges.length > 0) {
           await tx.insert(connections).values(
             edges.map((edge) => ({
@@ -151,11 +222,18 @@ export const workflowsRouter = createTRPCRouter({
           );
         }
 
-        // update workflow updateAt value
         await tx.update(workflows).set({ updatedAt: new Date() });
 
-        return workflow;
+        return { workflow, newNodes: returningNodes, existingCronNodes };
       });
+
+      await syncCronJobs(
+        result.workflow.id,
+        result.newNodes,
+        result.existingCronNodes,
+      );
+
+      return result.workflow;
     }),
 
   updateName: protectedProcedure
