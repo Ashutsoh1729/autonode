@@ -2,6 +2,7 @@
 Hook to fetch all workflows using suspence
 */
 
+import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 import {
   useMutation,
@@ -14,7 +15,11 @@ import { useCredentialsParams } from "./use-credentials-params";
 export const useSuspenceCredentials = () => {
   const trpc = useTRPC();
   const [params] = useCredentialsParams();
-  return useSuspenseQuery(trpc.credentials.getMany.queryOptions(params));
+  const { data: session } = authClient.useSession();
+
+  return useSuspenseQuery(
+    trpc.credentials.getMany.queryOptions(params, { enabled: !!session }),
+  );
 };
 
 /*
@@ -23,7 +28,11 @@ export const useSuspenceCredentials = () => {
 
 export const useSuspenceCredential = (id: string) => {
   const trpc = useTRPC();
-  return useSuspenseQuery(trpc.credentials.getOne.queryOptions({ id }));
+  const { data: session } = authClient.useSession();
+
+  return useSuspenseQuery(
+    trpc.credentials.getOne.queryOptions({ id }, { enabled: !!session }),
+  );
 };
 
 export const useCreateCredential = () => {

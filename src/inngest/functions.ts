@@ -1,7 +1,7 @@
 import { NonRetriableError } from "inngest";
 import { inngest } from "./client";
 import { db } from "@/db";
-import { workflows } from "@/db/schema";
+import { executions, workflows } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { topologicalSort } from "./utils";
 import { getExecutor } from "@/features/executors/lib/executor-registory";
@@ -19,38 +19,73 @@ export const executeWorkflow = inngest.createFunction(
       throw new NonRetriableError("Workflow ID is required");
     }
 
-    const nodes = await step.run("run-workflow", async () => {
-      const workflow = await db.query.workflows.findFirst({
-        with: {
-          nodes: true,
-          connections: true,
-        },
-        where: eq(workflows.id, workflowId),
-      });
-      // NOTE: Consider for if the database connection is busy, how to retry it for some time, normal error will let the inngest to try for atleast 3 times
-      if (!workflow) {
-        throw new Error("Workflow not found");
-      }
-
-      const sortedNodes = topologicalSort(workflow.nodes, workflow.connections);
-      return sortedNodes;
+    const executionRecord = await step.run("create-execution-record", async () => {
+      const execution = await db
+        .insert(executions)
+        .values({
+          workflowId,
+          triggerType: event.data.triggerType || "MANUAL",
+          input: event.data.initialData || {},
+          status: "RUNNING",
+        })
+        .returning();
+      return execution[0];
     });
 
-    let context = event.data.initialData || {};
+    try {
+      const nodes = await step.run("run-workflow", async () => {
+        const workflow = await db.query.workflows.findFirst({
+          with: {
+            nodes: true,
+            connections: true,
+          },
+          where: eq(workflows.id, workflowId),
+        });
+        if (!workflow) {
+          throw new Error("Workflow not found");
+        }
 
-    for (const node of nodes) {
-      const executor = getExecutor(node.type);
-      // here the executor in itself returns the context
-      context = await executor({
-        //  TODO: current patch up work
-        data: node.data as Record<string, unknown>,
-        nodeId: node.id,
-        context,
-        step,
-        publish,
+        const sortedNodes = topologicalSort(workflow.nodes, workflow.connections);
+        return sortedNodes;
       });
-    }
 
-    return context;
+      let context = event.data.initialData || {};
+
+      for (const node of nodes) {
+        const executor = getExecutor(node.type);
+        context = await executor({
+          data: node.data as Record<string, unknown>,
+          nodeId: node.id,
+          context,
+          step,
+          publish,
+        });
+      }
+
+      await step.run("update-execution-success", async () => {
+        await db
+          .update(executions)
+          .set({
+            status: "SUCCESS",
+            completedAt: new Date(),
+            output: context,
+          })
+          .where(eq(executions.id, executionRecord.id));
+      });
+
+      return context;
+    } catch (error) {
+      await step.run("update-execution-failed", async () => {
+        await db
+          .update(executions)
+          .set({
+            status: "FAILED",
+            completedAt: new Date(),
+          })
+          .where(eq(executions.id, executionRecord.id));
+      });
+
+      throw error;
+    }
   },
 );

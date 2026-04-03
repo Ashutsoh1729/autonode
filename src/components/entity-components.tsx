@@ -264,6 +264,7 @@ export interface EntityItemsProps {
   subtitle?: React.ReactNode;
   image?: React.ReactNode;
   actions?: React.ReactNode;
+  badge?: React.ReactNode;
   onRemove?: () => Promise<void>;
   isRemoving?: boolean;
   className?: string;
@@ -275,6 +276,7 @@ export const EntityItem = ({
   subtitle,
   image,
   actions,
+  badge,
   onRemove,
   isRemoving,
   className,
@@ -310,8 +312,9 @@ export const EntityItem = ({
             </div>
           </div>
           <div>
-            {(actions || onRemove) && (
+            {(actions || onRemove || badge) && (
               <div className="flex gap-x-4 items-center">
+                {badge}
                 {actions}
                 {onRemove && (
                   <DropdownMenu>
