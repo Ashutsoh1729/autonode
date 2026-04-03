@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { NodeTypeValue } from "@/lib/node-components";
-import { GlobeIcon, MousePointerIcon, Clock } from "lucide-react";
+import { GlobeIcon, MousePointerIcon, Clock, BrainIcon } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { useReactFlow } from "@xyflow/react";
 import { toast } from "sonner";
@@ -35,8 +35,7 @@ const triggerNode: NodeTypeOptions[] = [
   {
     type: "CRON_TRIGGER",
     label: "Schedule Trigger",
-    description:
-      "Runs the flow on a cron schedule. Good for recurring tasks.",
+    description: "Runs the flow on a cron schedule. Good for recurring tasks.",
     icon: Clock,
   },
 ];
@@ -54,6 +53,12 @@ const executionNodes: NodeTypeOptions[] = [
     label: "HTTP Request",
     description: "Make an http request",
     icon: GlobeIcon,
+  },
+  {
+    type: "AI",
+    label: "AI Node",
+    description: "Generate text using AI models",
+    icon: BrainIcon,
   },
 ];
 

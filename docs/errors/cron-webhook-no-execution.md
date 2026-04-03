@@ -8,7 +8,7 @@ Cron-job.org successfully calls the webhook endpoint (`/api/cron-webhook`) and r
 
 1. Cron-job.org shows: Status 200 OK, Timing ~839ms
 2. Response body contains ngrok error page HTML with `ERR_NGROK_6024` code
-3. Inngest dev server shows no `workflow/execute-http` event being processed
+3. Inngest dev server shows no `workflow/execute` event being processed
 4. Workflow execution doesn't trigger
 
 ## Timeline
@@ -24,7 +24,7 @@ The response body shows ngrok's "trust this site" error page. The 200 OK is from
 **Fix**: Add `ngrok-skip-browser-warning: true` header in cron-job.org request configuration.
 
 ### 2. Inngest Event Not Received
-The webhook sends `workflow/execute-http` event to Inngest, but the Inngest dev server might not be receiving or processing it.
+The webhook sends `workflow/execute` event to Inngest, but the Inngest dev server might not be receiving or processing it.
 
 **Check**: Look at Inngest dev server console for event logs.
 
@@ -44,7 +44,7 @@ The webhook returns `NextResponse.json({ success: true })` but the actual `innge
 1. `src/app/api/cron-webhook/route.ts` - Receives POST from cron-job.org
 2. Validates auth header (`CRON_WEBHOOK_SECRET`)
 3. Finds matching cron node by `jobId`
-4. Sends `workflow/execute-http` event to Inngest
+4. Sends `workflow/execute` event to Inngest
 5. `src/inngest/functions.ts` - `executeWorkflow` function processes the event
 6. Fetches workflow with nodes and connections
 7. Runs topological sort
@@ -54,7 +54,7 @@ The webhook returns `NextResponse.json({ success: true })` but the actual `innge
 
 - [x] Visit ngrok URL directly in browser to accept consent
 - [ ] Add `ngrok-skip-browser-warning: true` header in cron-job.org (PRIMARY FIX)
-- [ ] Check Inngest dev server logs for `workflow/execute-http` event
+- [ ] Check Inngest dev server logs for `workflow/execute` event
 - [ ] Verify workflow has nodes in database
 - [ ] Verify workflow has connections/edges in database
 - [ ] Add more logging in webhook to capture errors
@@ -76,7 +76,7 @@ Wrap `inngest.send()` with try-catch to catch silent failures:
 
 ```ts
 try {
-  await inngest.send({ name: "workflow/execute-http", data: {...} });
+   await inngest.send({ name: "workflow/execute", data: {...} });
   console.log("Event sent to Inngest ✓");
 } catch (err) {
   console.error("Inngest send failed:", err);

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { config } from "@/lib/config";
 import { inngest } from "@/inngest/client";
 
 function validateAuth(req: NextRequest): boolean {
@@ -35,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     await inngest.send({
-      name: "workflow/execute-http",
+      name: "workflow/execute",
       data: {
         workflowId: parseInt(workflowId),
         trigger: "cron",

@@ -4,15 +4,14 @@ import { db } from "@/db";
 import { workflows } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { topologicalSort } from "./utils";
-import { getExecutor } from "@/features/executions/lib/executor-registory";
+import { getExecutor } from "@/features/executors/lib/executor-registory";
 import { httpRequestChannel } from "./channels/http-request";
 
 export { aiGenerateText } from "./functions/generate-text";
 
-// TODO: Change the execute-http name, as it is very specific
 export const executeWorkflow = inngest.createFunction(
-  { id: "execute-http-workflow" },
-  { event: "workflow/execute-http", channels: [httpRequestChannel()] },
+  { id: "execute-workflow" },
+  { event: "workflow/execute", channels: [httpRequestChannel()] },
   async ({ event, step, publish }) => {
     const workflowId = event.data.workflowId;
 
