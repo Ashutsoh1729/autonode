@@ -11,7 +11,7 @@ import {
 import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 import { useWorkflowsParams } from "./use-workflows-params";
-import { isExecutingAtom } from "@/features/executions/store/atoms";
+import { isExecutingAtom } from "@/features/executors/store/atoms";
 
 export const useSuspenceWorkflows = () => {
   const trpc = useTRPC();

@@ -10,7 +10,7 @@ This document outlines the planning workflow for implementing features in AutoNo
 
 | Feature | Category | Plan File | Status |
 |---------|----------|-----------|--------|
-| (none) | - | - | - |
+| AI Node Implementation | ai_node | docs/plan/features/ai_node/ai-node-implementation.md | in_progress |
 
 *To add an active plan, create it in `docs/plan/<category>/<feature>.md` and update this table.*
 

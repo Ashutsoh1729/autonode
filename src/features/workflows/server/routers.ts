@@ -13,8 +13,8 @@ import { TRPCError } from "@trpc/server";
 import { Edge, Node } from "@xyflow/react";
 import { createId } from "@paralleldrive/cuid2";
 import { inngest } from "@/inngest/client";
-import { deleteJob } from "@/features/triggers/cron_job_trigger/lib/cron";
-import { syncCronJobs } from "@/features/triggers/cron_job_trigger/lib/cron-job-sync";
+import { deleteJob } from "@/features/triggers/nodes/cron_job_trigger/lib/cron";
+import { syncCronJobs } from "@/features/triggers/nodes/cron_job_trigger/lib/cron-job-sync";
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
@@ -34,12 +34,12 @@ export const workflowsRouter = createTRPCRouter({
         });
       }
 
-      await inngest.send({
-        name: "workflow/execute-http",
-        data: {
-          workflowId: workflow.id,
-        },
-      });
+       await inngest.send({
+         name: "workflow/execute",
+         data: {
+           workflowId: workflow.id,
+         },
+       });
 
       return workflow;
     }),

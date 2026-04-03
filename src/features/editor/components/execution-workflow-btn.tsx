@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2Icon, PlayIcon } from "lucide-react";
 import { useExecuteWorkflow } from "@/features/workflows/hooks/use-workflows";
 import { useSetAtom } from "jotai";
-import { isExecutingAtom } from "@/features/executions/store/atoms";
+import { isExecutingAtom } from "@/features/executors/store/atoms";
 
 export const ExecutionWorkflowBtn = ({
   workflowId,
