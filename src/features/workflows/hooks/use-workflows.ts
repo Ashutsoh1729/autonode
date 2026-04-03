@@ -2,6 +2,7 @@
 Hook to fetch all workflows using suspence
 */
 
+import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 import {
   useMutation,
@@ -16,7 +17,11 @@ import { isExecutingAtom } from "@/features/executors/store/atoms";
 export const useSuspenceWorkflows = () => {
   const trpc = useTRPC();
   const [params] = useWorkflowsParams();
-  return useSuspenseQuery(trpc.workflows.getMany.queryOptions(params));
+  const { data: session } = authClient.useSession();
+
+  return useSuspenseQuery(
+    trpc.workflows.getMany.queryOptions(params, { enabled: !!session }),
+  );
 };
 
 export const useCreateWorkflow = () => {
@@ -94,7 +99,11 @@ export const useRemoveWorkflow = () => {
 
 export const useSuspenceWorkflow = (id: number) => {
   const trpc = useTRPC();
-  return useSuspenseQuery(trpc.workflows.getOne.queryOptions({ id }));
+  const { data: session } = authClient.useSession();
+
+  return useSuspenseQuery(
+    trpc.workflows.getOne.queryOptions({ id }, { enabled: !!session }),
+  );
 };
 
 /*

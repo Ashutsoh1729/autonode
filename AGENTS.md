@@ -301,16 +301,23 @@ export function Button({ className, variant, size }) {
 
 Before implementing features, always create a structured plan. See `docs/plan/init.md` for detailed instructions.
 
+**Important**: When instructed to create a plan, only create the plan file. Do NOT start implementing it. Only execute a plan when explicitly instructed to "execute the plan" or "implement the plan from file".
+
 ### Quick Summary
 
-1. **Create plan file**: `docs/plan/<category>/<feature-name>.md`
-2. **Include checklist**: Use `- [ ]` for pending, `- [x]` for completed
-3. **Execute & track**: Mark tasks complete as you go
-4. **Resume on error**: Reference last completed task in plan
+1. **Create plan directory**: `docs/plan/<category>/<feature-name>/`
+2. **Create plan file**: `docs/plan/<category>/<feature-name>/index.md`
+3. **Include checklist**: Use `- [ ]` for pending, `- [x]` for completed
+4. **Execute & track**: Mark tasks complete as you go
+5. **Resume on error**: Reference last completed task in plan
+
+All feature planning, modifications, errors, and related notes should stay in the same directory.
 
 Example plan structure:
 
 ```markdown
+# Feature Name
+
 ## Implementation Steps
 
 ### Step 1: Create database schema
@@ -343,7 +350,7 @@ Example plan structure:
 
 ### Adding a New Node Type
 
-1. Read `docs/plan/features/node.md` first for complete implementation guide
+1. Read `docs/plan/features/node/index.md` first for complete implementation guide
 2. Add node type to `nodeType` enum in `src/db/schema/workflows.ts`
 3. Create executor in `src/features/executions/lib/`
 4. Register executor in `src/lib/node-registery.ts`
@@ -404,7 +411,7 @@ When implementing features using plans:
 ### 2. Plan Completion
 
 - When all implementation tasks are complete (not including testing), mark the plan as completed
-- Move the plan file to `docs/plan/<category>/archive/`
+- Move the plan directory to `docs/plan/<category>/archive/<feature-name>/`
 - Add "Status: Completed" at the end of the plan
 
 ### 3. Plan Format
@@ -425,4 +432,7 @@ Each plan should end with:
 ---
 
 ## Status: Completed
+```
+
+> **Note:** For current project goals and todo items, see `docs/todo.md`
 ```

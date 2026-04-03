@@ -22,6 +22,20 @@
       "when": 1774501630227,
       "tag": "0002_blushing_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775202626823,
+      "tag": "0003_dear_patch",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1775207118519,
+      "tag": "0004_add_execution_nodes",
+      "breakpoints": true
     }
   ]
 }
