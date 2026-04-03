@@ -10,3 +10,12 @@ export const useSuspenseExecutions = () => {
     trpc.executions.getAll.queryOptions({}, { enabled: !!session }),
   );
 };
+
+export const useSuspenseExecution = (id: number) => {
+  const trpc = useTRPC();
+  const { data: session } = authClient.useSession();
+
+  return useSuspenseQuery(
+    trpc.executions.getById.queryOptions({ id }, { enabled: !!session }),
+  );
+};

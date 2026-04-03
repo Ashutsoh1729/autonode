@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { executions, workflows } from "@/db/schema";
+import { executions, executionNodes, workflows } from "@/db/schema";
 import { PAGINATION } from "@/lib/constants";
 import {
   createTRPCRouter,
@@ -194,5 +194,30 @@ export const executionsRouter = createTRPCRouter({
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       };
+    }),
+
+  getById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const execution = await db.query.executions.findFirst({
+        where: and(
+          eq(executions.id, input.id),
+        ),
+        with: {
+          workflow: true,
+          nodes: {
+            orderBy: [executionNodes.id],
+          },
+        },
+      });
+
+      if (!execution || execution.workflow.userId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Execution not found",
+        });
+      }
+
+      return execution;
     }),
 });
