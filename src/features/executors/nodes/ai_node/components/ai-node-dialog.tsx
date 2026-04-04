@@ -44,18 +44,10 @@ const formSchema = z.object({
       "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
     ),
   prompt: z.string().min(1, "Prompt is required"),
-  model: z
-    .string()
-    .default("gemini-2.5-flash")
-    .optional(),
-  temperature: z
-    .number()
-    .min(0)
-    .max(2)
-    .default(0.7)
-    .optional(),
+  model: z.string(),
+  temperature: z.number(),
   maxTokens: z.number().int().positive().optional(),
-  credentialId: z.string().default("none"),
+  credentialId: z.string(),
 });
 
 export type AiNodeFormSchemaType = z.infer<typeof formSchema>;
