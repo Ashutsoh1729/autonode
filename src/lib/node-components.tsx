@@ -5,6 +5,7 @@ import { CronJobTriggerNode } from "@/features/triggers/nodes/cron_job_trigger/c
 import { NodeProps, NodeTypes } from "@xyflow/react";
 import { HttpRequestNode } from "@/features/executors/nodes/http_node/components/http-node";
 import { AINode } from "@/features/executors/nodes/ai_node/components/ai-node";
+import { EmailNode } from "@/features/executors/nodes/email_node/components/email-node";
 
 export type NodeTypeValue = (typeof nodeType.enumValues)[number];
 
@@ -16,6 +17,7 @@ const componentMap: Record<NodeTypeValue, React.ComponentType<NodeProps>> = {
   // TODO: check the error
   HTTP_REQUEST: HttpRequestNode as unknown as React.ComponentType<NodeProps>,
   AI: AINode as unknown as React.ComponentType<NodeProps>,
+  EMAIL: EmailNode as unknown as React.ComponentType<NodeProps>,
 };
 
 export const nodeComponents = componentMap satisfies NodeTypes;

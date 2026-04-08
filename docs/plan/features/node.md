@@ -74,7 +74,7 @@ export type NodeExecutor<TData = Record<string, unknown>> = (
 ) => Promise<WorkflowContext>;
 ```
 
-### 3. Registry (`src/lib/node-registery.ts`)
+### 3. Registry (`src/lib/node_executor_registery.ts`)
 
 Register the executor in the registry:
 
@@ -99,71 +99,164 @@ export const getExecutor = (nodeType: NodeType["type"]) => {
 };
 ```
 
-### 4. React Flow Node Component (Optional - if UI needed)
+### 4. Node Component & Dialog
 
-Create a React Flow node component in `src/components/react-flow/`:
+Create React Flow node component and configuration dialog in `src/features/executors/nodes/[node_name]_node/components/`:
 
 ```tsx
-// src/components/react-flow/your-node.tsx
+// src/features/executors/nodes/your_node/components/your-node.tsx
 "use client";
 
-import { Handle, Position } from "@xyflow/react";
-import { WorkflowNode } from "./workflow-node";
+import { Node, NodeProps, useReactFlow } from "@xyflow/react";
+import { memo, useState } from "react";
+import { BaseExecutionNode } from "../../../components/base-execution-node";
+import { YourIcon } from "lucide-react";
+import { NodeStatus } from "@/components/react-flow/node-status-indicator";
+import { YourNodeFormSchemaType, YourExecutionDialog } from "./your-node-dialog";
+import { useNodeStatus } from "../../../hooks/use-node-status";
+import { yourNodeChannel } from "@/inngest/channels/your-node-request";
+import { fetchYourNodeRealTime } from "../../../lib/actions";
 
-interface YourNodeProps {
-  data: {
-    label?: string;
-    // other config fields
+export type YourNodeData = {
+  variableName: string;
+  // other config fields
+  [key: string]: unknown;
+};
+
+type YourNodeType = Node<YourNodeData>;
+
+export const YourNode = memo((props: NodeProps<YourNodeType>) => {
+  const NodeData = props.data;
+  const { setNodes } = useReactFlow();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
+  const nodeStatus: NodeStatus = useNodeStatus({
+    nodeId: props.id,
+    channel: yourNodeChannel().name,
+    topic: "status",
+    refreshToken: fetchYourNodeRealTime,
+    enabled: isExecuting,
+  });
+
+  const handleSubmit = (values: YourNodeFormSchemaType) => {
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        if (node.id === props.id) {
+          return { ...node, data: { ...node.data, ...values } };
+        }
+        return node;
+      }),
+    );
   };
-  selected?: boolean;
-}
 
-export function YourNode({ data, selected }: YourNodeProps) {
   return (
-    <WorkflowNode
-      name={data.label}
-      showToolbar={selected}
-      onDelete={() => {/* handle delete */}}
-      onSettings={() => {/* open settings dialog */}}
-    >
-      <Handle type="target" position={Position.Top} />
-      <div className="p-4">
-        {/* Node UI */}
-      </div>
-      <Handle type="source" position={Position.Bottom} />
-    </WorkflowNode>
+    <>
+      <YourExecutionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSubmit={handleSubmit}
+        defaultValues={NodeData}
+      />
+      <BaseExecutionNode
+        icon={YourIcon}
+        name={NodeData.variableName || "Your Node"}
+        description={NodeData.description || "Not Configured"}
+        onSettings={() => setDialogOpen(true)}
+        onDoubleClick={() => setDialogOpen(true)}
+        status={nodeStatus}
+        {...props}
+      />
+    </>
   );
-}
+});
 ```
 
-### 5. Node Dialog/Form (Optional - for configuration)
-
-Create a dialog for configuring the node in `src/features/[your-feature]/components/`:
-
 ```tsx
-// src/features/your-feature/components/your-node-dialog.tsx
+// src/features/executors/nodes/your_node/components/your-node-dialog.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { YourDialog } from "@/components/ui/your-dialog";
 
 const yourNodeSchema = z.object({
-  field1: z.string().min(1),
-  field2: z.number(),
+  variableName: z.string().min(1),
+  // other fields
 });
 
-export function YourNodeDialog({ node, onSave, onClose }) {
+export type YourNodeFormSchemaType = z.infer<typeof yourNodeSchema>;
+
+export function YourExecutionDialog({ 
+  open, 
+  onOpenChange, 
+  onSubmit, 
+  defaultValues 
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (values: YourNodeFormSchemaType) => void;
+  defaultValues?: YourNodeData;
+}) {
   const form = useForm({
     resolver: zodResolver(yourNodeSchema),
-    defaultValues: node?.data || {},
+    defaultValues: defaultValues || { variableName: "" },
   });
 
-  // Render form fields and save button
+  return (
+    <YourDialog open={open} onOpenChange={onOpenChange}>
+      <YourDialog.Content>
+        <YourDialog.Header>
+          <YourDialog.Title>Configure Your Node</YourDialog.Title>
+        </YourDialog.Header>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          {/* Form fields */}
+        </form>
+      </YourDialog.Content>
+    </YourDialog>
+  );
 }
 ```
 
-### 6. Real-time Updates (Optional)
+### 5. Node Component Registry
+
+Register the node component in `src/lib/node-components.tsx`:
+
+```typescript
+import { YourNode } from "./your-node";
+
+const componentMap: Record<NodeTypeValue, React.ComponentType<NodeProps>> = {
+  INITIAL: InitialNode,
+  MANUAL_TRIGGER: ManualTriggerNode,
+  HTTP_REQUEST: HttpRequestNode,
+  YOUR_NEW_NODE: YourNode,  // Add here
+};
+
+export const nodeComponents = componentMap;
+```
+
+### 6. Node Selector (Sidebar)
+
+Add the node to the sidebar in `src/components/react-flow/node-selecter.tsx`:
+
+```typescript
+const executionNodes: NodeTypeOptions[] = [
+  {
+    type: "HTTP_REQUEST",
+    label: "HTTP Request",
+    description: "Make an http request",
+    icon: GlobeIcon,
+  },
+  {
+    type: "YOUR_NEW_NODE",  // Add here
+    label: "Your Node Name",
+    description: "What it does",
+    icon: YourIcon,
+  },
+];
+```
+
+### 7. Real-time Updates (Optional)
 
 If your node needs real-time status updates, create a channel in `src/inngest/channels/`:
 
@@ -192,10 +285,11 @@ await publish(yourNodeChannel.status({
 ## Checklist for New Node Implementation
 
 - [ ] Add node type to `nodeType` enum in `src/db/schema/workflows.ts`
-- [ ] Create executor function in `src/features/executions/lib/`
-- [ ] Register executor in `src/lib/node-registery.ts`
-- [ ] (Optional) Create React Flow node component in `src/components/react-flow/`
-- [ ] (Optional) Create node dialog for configuration
+- [ ] Create executor function in `src/features/executors/lib/`
+- [ ] Register executor in `src/lib/node_executor_registery.ts`
+- [ ] Create node component and dialog in `src/features/executors/nodes/[node_name]_node/components/`
+- [ ] Register node component in `src/lib/node-components.tsx`
+- [ ] Add to sidebar in `src/components/react-flow/node-selecter.tsx`
 - [ ] (Optional) Create real-time channel if needed
 - [ ] Run migration: `pnpm drizzle-kit generate` && `pnpm drizzle-kit push`
 - [ ] Add plan entry in `docs/plan/init.md` active plans table

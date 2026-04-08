@@ -42,7 +42,7 @@ const formSchema = z.object({
       /^[a-zA-Z_$][a-zA-Z0-9_$]*$/,
       "Variable name must start with a letter or underscore and can only contain letters, numbers, and underscores",
     ),
-  provider: z.enum(["OPENAI", "ANTHROPIC", "GEMINI"]),
+  provider: z.enum(["OPENAI", "ANTHROPIC", "GEMINI", "RESEND"]),
   key: z
     .string()
     .min(1, "API key is required")
@@ -50,7 +50,8 @@ const formSchema = z.object({
       (val) =>
         /^sk-(proj-)?[a-zA-Z0-9_-]{40,}$/.test(val) ||
         /^sk-ant-api03-[a-zA-Z0-9_-]{80,}$/.test(val) ||
-        /^AIza[a-zA-Z0-9_-]{35}$/.test(val),
+        /^AIza[a-zA-Z0-9_-]{35}$/.test(val) ||
+        /^re_[a-zA-Z0-9_-]{20,}$/.test(val),
       { message: "Invalid API key format" },
     ),
 });
@@ -103,9 +104,9 @@ export const CredentialsInputForm = ({
       {/* <DialogContent className=" lg:w-[70vw] h-[90vh] scroll overflow-y-auto "> */}
       <DialogContent className="lg:w-[70vw] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-500 [&::-webkit-scrollbar-thumb]:rounded-full">
         <DialogHeader>
-          <DialogTitle>HTTP Request</DialogTitle>
+          <DialogTitle>Credential Key</DialogTitle>
           <DialogDescription>
-            Configure settings for Http Nod{" "}
+            Store your crendential data securely
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -153,6 +154,10 @@ export const CredentialsInputForm = ({
                       <SelectItem value="ANTHROPIC">
                         <ProviderLogo provider={"ANTHROPIC"} size={16} />
                         ANTHROPIC
+                      </SelectItem>
+                      <SelectItem value="RESEND">
+                        <ProviderLogo provider={"RESEND"} size={16} />
+                        RESEND
                       </SelectItem>
                     </SelectContent>
                   </Select>

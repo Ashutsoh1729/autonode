@@ -19,7 +19,7 @@ export const credentialsRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         key: z.string(),
-        provider: z.enum(["OPENAI", "ANTHROPIC", "GEMINI"]),
+        provider: z.enum(["OPENAI", "ANTHROPIC", "GEMINI", "RESEND"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
