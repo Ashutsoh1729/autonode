@@ -4,6 +4,7 @@ import { httpRequestChannel } from "@/inngest/channels/http-request";
 import { manualTriggerChannel } from "@/inngest/channels/manual-trigger";
 import { cronTriggerChannel } from "@/inngest/channels/cron-trigger";
 import { aiRequestChannel } from "@/inngest/channels/ai-request";
+import { emailRequestChannel } from "./email.executor";
 import { inngest } from "@/inngest/client";
 import { getSubscriptionToken, Realtime } from "@inngest/realtime";
 
@@ -24,6 +25,11 @@ export type CronTriggerToken = Realtime.Token<
 
 export type AiRequestToken = Realtime.Token<
   typeof aiRequestChannel,
+  ["status"]
+>;
+
+export type EmailRequestToken = Realtime.Token<
+  typeof emailRequestChannel,
   ["status"]
 >;
 
@@ -55,6 +61,14 @@ export async function fetchCronTriggerRealTime(): Promise<CronTriggerToken> {
 export async function fetchAiRequestRealTime(): Promise<AiRequestToken> {
   const token = await getSubscriptionToken(inngest, {
     channel: aiRequestChannel(),
+    topics: ["status"],
+  });
+  return token;
+}
+
+export async function fetchEmailRequestRealTime(): Promise<EmailRequestToken> {
+  const token = await getSubscriptionToken(inngest, {
+    channel: emailRequestChannel(),
     topics: ["status"],
   });
   return token;

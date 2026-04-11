@@ -27,6 +27,7 @@ export const credentialType = pgEnum("credentials_type", [
   "OPENAI",
   "ANTHROPIC",
   "GEMINI",
+  "RESEND",
 ]);
 
 // credentials
@@ -54,6 +55,7 @@ export const nodeType = pgEnum("node_types", [
   "CRON_TRIGGER",
   "HTTP_REQUEST",
   "AI",
+  "EMAIL",
 ]);
 
 export const nodes = pgTable("nodes", {

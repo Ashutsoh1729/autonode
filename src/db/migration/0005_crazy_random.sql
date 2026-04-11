@@ -1,0 +1,1 @@
+ALTER TYPE "public"."node_types" ADD VALUE 'EMAIL';

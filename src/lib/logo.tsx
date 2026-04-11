@@ -4,10 +4,11 @@ const PROVIDER_LOGO: Record<string, string> = {
   OPENAI: "/logo/OpenAI/OpenAI_Symbol_0.svg",
   ANTHROPIC: "/logo/Claude/Claude_Logo_0.svg",
   GEMINI: "/logo/Google/Google_Symbol_0.svg",
+  RESEND: "/logo/logoipsum-396.svg", // Use placeholder for now
 };
 
 interface ProviderLogoProps {
-  provider: "OPENAI" | "ANTHROPIC" | "GEMINI" | null;
+  provider: "OPENAI" | "ANTHROPIC" | "GEMINI" | "RESEND" | null;
   size?: number;
 }
 

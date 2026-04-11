@@ -18,6 +18,36 @@ AutoNode is a Next.js-based AI workflow automation platform that allows users to
 
 ## Build & Development Commands
 
+This project uses [Task](https://taskfile.dev/) for running common commands. Make sure Task is installed, then use:
+
+```bash
+# Start database and dev server
+task start
+
+# Stop everything
+task stop
+
+# Start dev server only (Next.js + Inngest)
+task dev
+
+# Build for production
+task build
+
+# Run linter
+task lint
+
+# Database commands
+task db:up      # Start Postgres container
+task db:down    # Stop Postgres container
+task db:push    # Push schema to database
+task db:generate  # Generate migrations
+task db:migrate  # Apply migrations
+task db:studio  # Open Drizzle Studio
+task db:reset   # Reset database (removes volumes)
+```
+
+Or use pnpm commands directly (if Task not available):
+
 ```bash
 # Install dependencies
 pnpm install
@@ -27,9 +57,6 @@ pnpm dev
 
 # Build for production
 pnpm build
-
-# Start production server
-pnpm start
 
 # Run linter
 pnpm lint
@@ -303,6 +330,14 @@ Before implementing features, always create a structured plan. See `docs/plan/in
 
 **Important**: When instructed to create a plan, only create the plan file. Do NOT start implementing it. Only execute a plan when explicitly instructed to "execute the plan" or "implement the plan from file".
 
+### Adding Todo with Plan
+
+When adding a feature to `@docs/todo.md`, always include the plan file path if one exists. This helps track which plan to follow:
+
+```markdown
+- [ ] Feature name ( description ) (Plan: docs/plan/features/feature-name/index.md)
+```
+
 ### Quick Summary
 
 1. **Create plan directory**: `docs/plan/<category>/<feature-name>/`
@@ -350,11 +385,13 @@ Example plan structure:
 
 ### Adding a New Node Type
 
-1. Read `docs/plan/features/node/index.md` first for complete implementation guide
+1. Read `docs/plan/features/node.md` first for complete implementation guide
 2. Add node type to `nodeType` enum in `src/db/schema/workflows.ts`
-3. Create executor in `src/features/executions/lib/`
-4. Register executor in `src/lib/node-registery.ts`
-5. Create React Flow node component in `src/components/react-flow/`
+3. Create executor in `src/features/executors/lib/`
+4. Register executor in `src/lib/node_executor_registery.ts`
+5. Create node component and dialog in `src/features/executors/nodes/[node_name]_node/components/`
+6. Register node component in `src/lib/node-components.tsx`
+7. Add to sidebar in `src/components/react-flow/node-selecter.tsx`
 
 ### API Routes (tRPC)
 
@@ -433,6 +470,11 @@ Each plan should end with:
 
 ## Status: Completed
 ```
+
+> **Important**: When executing a plan from `@docs/plan/...`, ALWAYS:
+> 1. Update checkboxes `[ ]` to `[x]` as you complete each step
+> 2. After all steps complete, update status to "Status: Completed"
+> 3. Ensure "Modified Files" section lists all changes
 
 > **Note:** For current project goals and todo items, see `docs/todo.md`
 ```
