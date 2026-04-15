@@ -58,36 +58,6 @@ export const useCreateCredential = () => {
     }),
   );
 };
-
-/*
- * Hook to updage workflow name
- */
-
-/* export const useUpdateWorkflowName = () => {
-  const queryClient = useQueryClient();
-  const trpc = useTRPC();
-
-  return useMutation(
-    trpc.workflows.updateName.mutationOptions({
-      onSuccess: (data) => {
-        toast.success(`Workflow ${data[0].name} created`);
-        // as we are just invalidating the query
-        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
-        queryClient.invalidateQueries(
-          trpc.workflows.getOne.queryOptions({ id: data[0].id }),
-        );
-      },
-      onError: (error) => {
-        toast.error(`Failed to create workflow: ${error.message}`);
-      },
-    }),
-  );
-}; */
-
-/*
- * Hook to remove workflow
- */
-
 export const useRemoveCredential = () => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -108,46 +78,25 @@ export const useRemoveCredential = () => {
   );
 };
 
-/*
- * Hook to execute the workflow
- */
-
-/* export const useExecuteWorkflow = () => {
+// TODO: Write the full code for it
+export const useUpdateCredential = () => {
   const trpc = useTRPC();
-
-  return useMutation(
-    trpc.workflows.execute.mutationOptions({
-      onSuccess: (data) => {
-        toast.success(`Workflow ${data.name} Executed Successfully`);
-      },
-      onError: (error) => {
-        toast.error(`Failed to execute workflow: ${error.message}`);
-      },
-    }),
-  );
-}; */
-
-/*
- * Hook to update editor state
- */
-
-/* export const useUpdateEditorState = () => {
   const queryClient = useQueryClient();
-  const trpc = useTRPC();
-
   return useMutation(
-    trpc.workflows.update.mutationOptions({
+    trpc.credentials.update.mutationOptions({
       onSuccess: (data) => {
-        toast.success(`Editor Saved Successfully`);
+        toast.success(
+          `Credential ${data && data[0].name} deleted successfully.`,
+        );
         // as we are just invalidating the query
-        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
         queryClient.invalidateQueries(
-          trpc.workflows.getOne.queryOptions({ id: data.id }),
+          trpc.credentials.getMany.queryOptions({}),
         );
       },
       onError: (error) => {
-        toast.error(`Failed to create workflow: ${error.message}`);
+        toast.error(`Failed to remove workflow: ${error.message}`);
+        console.log(error);
       },
     }),
   );
-}; */
+};
