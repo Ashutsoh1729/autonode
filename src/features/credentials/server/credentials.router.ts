@@ -73,10 +73,11 @@ export const credentialsRouter = createTRPCRouter({
       } else {
         // TODO: Check no logical error is there
         const encryptedKey = encrypt(input.key!);
-        await db.update(credentials).set({
+        const updatedField = await db.update(credentials).set({
           name: input.name,
           value: encryptedKey,
         });
+        return updatedField;
       }
     }),
 
