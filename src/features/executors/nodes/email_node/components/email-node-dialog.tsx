@@ -36,14 +36,15 @@ import { credentialsAtom } from "@/features/credentials/store/credentials.atom";
 import { useCredentialsSync } from "@/features/credentials/hooks/use-credentials-sync";
 
 const formSchema = z.object({
-  provider: z.literal("resend"),
-  fromEmail: z.string().min(1, "Sender email is required"),
+  provider: z.enum(["resend", "smtp"]),
+  fromEmail: z.string().optional(),
   fromName: z.string().optional(),
   to: z.string().min(1, "Recipient email is required"),
   subject: z.string().min(1, "Subject is required"),
   body: z.string().min(1, "Body is required"),
   replyTo: z.string().optional(),
   credentialId: z.string(),
+  smtpCredentialId: z.string(),
 });
 
 export type EmailNodeFormSchemaType = z.infer<typeof formSchema>;
@@ -64,7 +65,7 @@ export const EmailExecutionDialog = ({
   const form = useForm<EmailNodeFormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      provider: "resend",
+      provider: defaultValues?.provider ?? "resend",
       fromEmail: defaultValues?.fromEmail ?? "",
       fromName: defaultValues?.fromName ?? "",
       to: defaultValues?.to ?? "",
@@ -72,16 +73,19 @@ export const EmailExecutionDialog = ({
       body: defaultValues?.body ?? "",
       replyTo: defaultValues?.replyTo ?? "",
       credentialId: defaultValues?.credentialId ?? "none",
+      smtpCredentialId: defaultValues?.smtpCredentialId ?? "none",
     },
   });
 
   useCredentialsSync();
   const credentials = useAtomValue(credentialsAtom);
 
+  const provider = form.watch("provider");
+
   useEffect(() => {
     if (open) {
       form.reset({
-        provider: "resend",
+        provider: defaultValues?.provider ?? "resend",
         fromEmail: defaultValues?.fromEmail ?? "",
         fromName: defaultValues?.fromName ?? "",
         to: defaultValues?.to ?? "",
@@ -89,6 +93,7 @@ export const EmailExecutionDialog = ({
         body: defaultValues?.body ?? "",
         replyTo: defaultValues?.replyTo ?? "",
         credentialId: defaultValues?.credentialId ?? "none",
+        smtpCredentialId: defaultValues?.smtpCredentialId ?? "none",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,6 +107,12 @@ export const EmailExecutionDialog = ({
   const resendCredentials = credentials.filter(
     (cred) => cred.provider === "RESEND"
   );
+
+  const smtpCredentials = credentials.filter(
+    (cred) => cred.provider === "SMTP"
+  );
+
+  const isResend = provider === "resend";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,9 +135,8 @@ export const EmailExecutionDialog = ({
                 <FormItem className="w-full">
                   <FormLabel>Email Provider</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={(val) => field.onChange(val as "resend" | "smtp")}
                     defaultValue={field.value}
-                    disabled
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -135,61 +145,98 @@ export const EmailExecutionDialog = ({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="resend">Resend</SelectItem>
+                      <SelectItem value="smtp">SMTP</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Currently only Resend is supported
+                    Choose between Resend API or SMTP
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="credentialId"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Resend Credential</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a credential" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">None (use RESEND_API_KEY env)</SelectItem>
-                      {resendCredentials.map((cred) => (
-                        <SelectItem key={cred.id} value={cred.id}>
-                          {cred.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Select a stored Resend API key, or leave empty to use RESEND_API_KEY environment variable
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {isResend ? (
+              <>
+                <FormField
+                  control={form.control}
+                  name="credentialId"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Resend Credential</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a credential" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="none">None (use RESEND_API_KEY env)</SelectItem>
+                          {resendCredentials.map((cred) => (
+                            <SelectItem key={cred.id} value={cred.id}>
+                              {cred.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select a stored Resend API key, or leave empty to use RESEND_API_KEY environment variable
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="fromEmail"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>From Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="noreply@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="fromEmail"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>From Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="noreply@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : (
+              <FormField
+                control={form.control}
+                name="smtpCredentialId"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>SMTP Credential</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a credential" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">None (use SMTP env vars)</SelectItem>
+                        {smtpCredentials.map((cred) => (
+                          <SelectItem key={cred.id} value={cred.id}>
+                            {cred.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select a stored SMTP credential, or leave empty to use SMTP environment variables
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
@@ -295,4 +342,4 @@ export const EmailExecutionDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
+}

@@ -3,6 +3,14 @@ import { useAtom } from "jotai";
 import { credentialsAtom } from "../store/credentials.atom";
 import { useSuspenceCredentials } from "./credentials.hooks";
 
+type CredentialItem = {
+  id: string;
+  name: string;
+  provider: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 /**
  * Hook to synchronize credentials data from TRPC to Jotai atom
  * This ensures that UI components using credentialsAtom (like AI node dialog)
@@ -14,14 +22,13 @@ export const useCredentialsSync = () => {
 
   useEffect(() => {
     if (!isLoading && credentialsData?.items) {
-      // Transform TRPC credentials format to atom format
-      // TRPC returns: { id, name, provider, key, createdAt, updatedAt }
-      // Atom expects: { id, name, provider }
-      const formattedCredentials = credentialsData.items.map((cred: any) => ({
-        id: cred.id,
-        name: cred.name,
-        provider: cred.provider,
-      }));
+      const formattedCredentials = credentialsData.items
+        .filter((cred) => cred.provider !== null)
+        .map((cred) => ({
+          id: cred.id,
+          name: cred.name,
+          provider: cred.provider as string,
+        }));
 
       setCredentialsAtom(formattedCredentials);
     }

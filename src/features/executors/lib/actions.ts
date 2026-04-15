@@ -4,7 +4,7 @@ import { httpRequestChannel } from "@/inngest/channels/http-request";
 import { manualTriggerChannel } from "@/inngest/channels/manual-trigger";
 import { cronTriggerChannel } from "@/inngest/channels/cron-trigger";
 import { aiRequestChannel } from "@/inngest/channels/ai-request";
-import { emailRequestChannel } from "./email.executor";
+import { emailRequestChannel } from "./email-channel";
 import { inngest } from "@/inngest/client";
 import { getSubscriptionToken, Realtime } from "@inngest/realtime";
 

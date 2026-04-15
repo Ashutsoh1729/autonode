@@ -16,12 +16,8 @@ import { useEntitySearch } from "@/hooks/use-entity-search";
 import { credentials } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { useWorkflowsParams } from "@/features/workflows/hooks/use-workflows-params";
+import { CredentialsSheet } from "./credentials-sheet";
 import {
-  CredentialsInputForm,
-  CredentialsInputFormSchemaType,
-} from "./credentials.form";
-import {
-  useCreateCredential,
   useRemoveCredential,
   useSuspenceCredential,
   useSuspenceCredentials,
@@ -177,27 +173,18 @@ export const CredentialsContainer = ({
 }) => {
   const [openDialog, setOpenDialog] = useAtom(credentialDialog);
 
-  const createCredential = useCreateCredential();
-
-  const handleCredentialsFormSubmit = (
-    values: CredentialsInputFormSchemaType,
-  ) => {
-    // TODO: change the console log
-
-    createCredential.mutate({
-      name: values.name,
-      key: values.key,
-      provider: values.provider,
-    });
-    console.log(values, "Credential Creation form");
-  };
   return (
     <>
-      <CredentialsInputForm
+      <CredentialsSheet
         open={openDialog}
         onOpenChange={setOpenDialog}
-        onSubmit={handleCredentialsFormSubmit}
       />
+      {/* Fallback - kept for potential rollback */}
+      {/* <CredentialsInputForm
+        open={openDialog}
+        onOpenChange={setOpenDialog}
+        onSubmit={...}
+      /> */}
       <EntityContainer
         header={<CredentialsHeader />}
         search={<CredentialsSearch />}
@@ -245,7 +232,12 @@ export const IndivisualCredentialPageContainter = ({ id }: { id: string }) => {
             <div className="flex items-center gap-2">
               <ProviderLogo
                 provider={singleCredential.provider}
-                size={singleCredential.provider === "OPENAI" ? 24 : 20}
+                size={
+                  singleCredential.provider === "OPENAI" ||
+                  singleCredential.provider === "OPENROUTER"
+                    ? 24
+                    : 20
+                }
               />
               <span className="text-sm text-muted-foreground">
                 {singleCredential.provider ?? "Unknown"}

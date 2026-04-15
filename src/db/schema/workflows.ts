@@ -28,6 +28,8 @@ export const credentialType = pgEnum("credentials_type", [
   "ANTHROPIC",
   "GEMINI",
   "RESEND",
+  "OPENROUTER",
+  "SMTP",
 ]);
 
 // credentials

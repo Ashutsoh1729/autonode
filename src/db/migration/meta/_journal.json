@@ -50,6 +50,20 @@
       "when": 1775505562860,
       "tag": "0006_brainy_peter_quill",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776145155752,
+      "tag": "0007_pretty_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776159250655,
+      "tag": "0008_cooing_psynapse",
+      "breakpoints": true
     }
   ]
 }

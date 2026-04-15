@@ -11,27 +11,48 @@ import * as z from "zod";
 import { TRPCError } from "@trpc/server";
 import { decrypt, encrypt } from "@/lib/security";
 
+const apiKeyProviderType = z.enum(["OPENAI", "ANTHROPIC", "GEMINI", "RESEND", "OPENROUTER"]);
+
+const apiKeyInputSchema = z.object({
+  name: z.string(),
+  key: z.string(),
+  provider: apiKeyProviderType,
+});
+
+const smtpInputSchema = z.object({
+  name: z.string(),
+  provider: z.literal("SMTP"),
+  smtp: z.object({
+    host: z.string(),
+    port: z.number(),
+    secure: z.boolean(),
+    username: z.string(),
+    password: z.string(),
+    fromEmail: z.string(),
+  }),
+});
+
+const createCredentialInput = apiKeyInputSchema.or(smtpInputSchema);
+
 export const credentialsRouter = createTRPCRouter({
   // creating new workflow
   // status - Working Fine
   create: premiumProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        key: z.string(),
-        provider: z.enum(["OPENAI", "ANTHROPIC", "GEMINI", "RESEND"]),
-      }),
-    )
+    .input(createCredentialInput)
     .mutation(async ({ ctx, input }) => {
-      // TODO: Endcode the key before saving it
+      let encryptedValue: string;
 
-      const encryptedKey = encrypt(input.key);
+      if (input.provider === "SMTP") {
+        encryptedValue = encrypt(JSON.stringify(input.smtp));
+      } else {
+        encryptedValue = encrypt(input.key);
+      }
 
       const credential = await db
         .insert(credentials)
         .values({
           name: input.name,
-          value: encryptedKey,
+          value: encryptedValue,
           provider: input.provider,
           userId: ctx.session.user.id,
         })
