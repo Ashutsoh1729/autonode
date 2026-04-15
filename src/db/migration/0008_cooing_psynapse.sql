@@ -1,0 +1,1 @@
+ALTER TYPE "public"."credentials_type" ADD VALUE 'SMTP';

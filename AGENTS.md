@@ -39,33 +39,10 @@ task lint
 # Database commands
 task db:up      # Start Postgres container
 task db:down    # Stop Postgres container
-task db:push    # Push schema to database
 task db:generate  # Generate migrations
 task db:migrate  # Apply migrations
 task db:studio  # Open Drizzle Studio
 task db:reset   # Reset database (removes volumes)
-```
-
-Or use pnpm commands directly (if Task not available):
-
-```bash
-# Install dependencies
-pnpm install
-
-# Start development server
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Run linter
-pnpm lint
-
-# Run Inngest dev server (for background jobs)
-pnpm inngest:dev
-
-# Run all dev processes (Next.js + Inngest)
-pnpm dev:all
 ```
 
 ### Running Tests
@@ -425,13 +402,10 @@ Required env vars (see `.env.example`):
 
 ```bash
 # Generate Drizzle migrations
-pnpm drizzle-kit generate
+task db:generate
 
-# Push schema to database
-pnpm drizzle-kit push
-
-# Type-check the project
-pnpm tsc --noEmit
+# Apply migrations to database
+task db:migrate
 ```
 
 ---

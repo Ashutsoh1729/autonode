@@ -10,7 +10,7 @@ import {
   EmailExecutionDialog,
 } from "./email-node-dialog";
 import { useNodeStatus } from "../../../hooks/use-node-status";
-import { emailRequestChannel } from "@/features/executors/lib/email.executor";
+import { emailRequestChannel } from "@/features/executors/lib/email-channel";
 import { fetchEmailRequestRealTime } from "../../../lib/actions";
 import { useAtomValue } from "jotai";
 import { isExecutingAtom } from "../../../store/atoms";
