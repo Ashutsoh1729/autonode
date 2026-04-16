@@ -85,9 +85,7 @@ export const useUpdateCredential = () => {
   return useMutation(
     trpc.credentials.update.mutationOptions({
       onSuccess: (data) => {
-        toast.success(
-          `Credential ${data && data[0].name} deleted successfully.`,
-        );
+        toast.success(`Credential ${data && data.name} deleted successfully.`);
         // as we are just invalidating the query
         queryClient.invalidateQueries(
           trpc.credentials.getMany.queryOptions({}),
