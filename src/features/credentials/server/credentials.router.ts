@@ -61,24 +61,20 @@ export const credentialsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (input.key && !input.name) {
-        const encryptedKey = encrypt(input.key);
-        await db.update(credentials).set({
-          value: encryptedKey,
+      const { name, key } = input;
+      if (!key) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Undefined key value",
         });
-      } else if (input.name && !input.key) {
-        await db.update(credentials).set({
-          name: input.name,
-        });
-      } else {
-        // TODO: Check no logical error is there
-        const encryptedKey = encrypt(input.key!);
-        const updatedField = await db.update(credentials).set({
-          name: input.name,
-          value: encryptedKey,
-        });
-        return updatedField;
       }
+
+      const encryptedKey = encrypt(key);
+      return await db
+        .update(credentials)
+        .set({ name: name, value: encryptedKey })
+        .where(eq(credentials.id, input.id))
+        .returning({ name: credentials.name });
     }),
 
   getOne: protectedProcedure
