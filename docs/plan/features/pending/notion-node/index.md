@@ -60,12 +60,14 @@ A node that fetches rows from a Notion database, filters by column value, and op
 ## Modified Files
 
 ### New Files Created
+
 - `src/features/executors/lib/notion.executor.ts`
 - `src/features/executors/nodes/notion_node/components/notion-node.tsx`
 - `src/features/executors/nodes/notion_node/components/notion-node-dialog.tsx`
 - `src/inngest/channels/notion-request.ts`
 
 ### Modified Files
+
 - `src/db/schema/workflows.ts`
 - `src/lib/node_executor_registery.ts`
 - `src/lib/node-components.tsx`

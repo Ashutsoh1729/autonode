@@ -61,12 +61,14 @@ See `credentials.md` for detailed implementation steps.
 ## Modified Files
 
 ### New Files Created
+
 - `src/features/executors/lib/email.executor.ts`
 - `src/features/executors/nodes/email_node/components/email-node.tsx`
 - `src/features/executors/nodes/email_node/components/email-node-dialog.tsx`
 - `src/inngest/channels/email-request.ts`
 
 ### Modified Files
+
 - `src/db/schema/workflows.ts`
 - `src/lib/node_executor_registery.ts`
 - `src/lib/node-components.tsx`
