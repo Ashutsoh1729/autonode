@@ -38,8 +38,8 @@ Add SMTP provider support to the existing email node while keeping Resend as the
 
 ### Step 6: Test the implementation
 
-- [ ] Test SMTP with Gmail SMTP
-- [ ] Test SMTP with custom SMTP server
+- [x] Test SMTP with Gmail SMTP
+- [x] Test SMTP with custom SMTP server
 - [x] Verify Resend still works as before
 
 ---
@@ -60,4 +60,4 @@ Add SMTP provider support to the existing email node while keeping Resend as the
 
 ---
 
-## Status: Pending
+## Status: Completed

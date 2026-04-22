@@ -3,7 +3,7 @@ import { inngest } from "./client";
 import { db } from "@/db";
 import { executions, workflows } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { topologicalSort } from "./utils";
+import { topologicalSort } from "./toposort.utils";
 import { getExecutor } from "@/features/executors/lib/executor-registory";
 import { httpRequestChannel } from "./channels/http-request";
 
@@ -19,18 +19,21 @@ export const executeWorkflow = inngest.createFunction(
       throw new NonRetriableError("Workflow ID is required");
     }
 
-    const executionRecord = await step.run("create-execution-record", async () => {
-      const execution = await db
-        .insert(executions)
-        .values({
-          workflowId,
-          triggerType: event.data.triggerType || "MANUAL",
-          input: event.data.initialData || {},
-          status: "RUNNING",
-        })
-        .returning();
-      return execution[0];
-    });
+    const executionRecord = await step.run(
+      "create-execution-record",
+      async () => {
+        const execution = await db
+          .insert(executions)
+          .values({
+            workflowId,
+            triggerType: event.data.triggerType || "MANUAL",
+            input: event.data.initialData || {},
+            status: "RUNNING",
+          })
+          .returning();
+        return execution[0];
+      },
+    );
 
     try {
       const nodes = await step.run("run-workflow", async () => {
@@ -45,7 +48,10 @@ export const executeWorkflow = inngest.createFunction(
           throw new Error("Workflow not found");
         }
 
-        const sortedNodes = topologicalSort(workflow.nodes, workflow.connections);
+        const sortedNodes = topologicalSort(
+          workflow.nodes,
+          workflow.connections,
+        );
         return sortedNodes;
       });
 

@@ -16,13 +16,14 @@ Update the credentials creation form to support RESEND provider.
 
 ### Step 3: Update API key validation
 
-- [x] Add RESEND validation (re_ API keys start with "re_")
+- [x] Add RESEND validation (re* API keys start with "re*")
 
 ---
 
 ## Modified Files
 
 ### Modified Files
+
 - `src/features/credentials/component/credentials.form.tsx`
 
 ---

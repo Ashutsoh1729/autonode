@@ -22,9 +22,11 @@ Centralize all node icons in a single config file to make adding new nodes easie
 ## Modified Files
 
 ### New Files Created
+
 - `src/lib/node-icons.ts`
 
 ### Modified Files
+
 - `src/components/react-flow/node-selecter.tsx`
 
 ---

@@ -44,6 +44,7 @@ Update the email node to use credentials from the credential manager instead of 
 ## Modified Files
 
 ### Modified Files
+
 - `src/db/schema/workflows.ts`
 - `src/features/executors/nodes/email_node/components/email-node-dialog.tsx`
 - `src/features/executors/lib/email.executor.ts`

@@ -24,6 +24,7 @@ import { AddNodeButton } from "@/components/react-flow/add-node-btn";
 import { useSetAtom } from "jotai";
 import { editorAtom } from "../store/atoms";
 import { ExecutionWorkflowBtn } from "./execution-workflow-btn";
+import { AiWorkflowGeneratorSheet } from "@/features/workflow-generator/components/ai-workflow-generator-sheet";
 
 export const EditorLoading = () => {
   return <LoadingView message="Loading editor..." />;
@@ -80,8 +81,9 @@ const Editor = ({ workflowId }: { workflowId: number }) => {
         <Background />
         <Controls className="mb-16 ml-4" />
         <Panel position="top-right">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-2">
             <AddNodeButton />
+            <AiWorkflowGeneratorSheet />
           </div>
 
         </Panel>
