@@ -14,17 +14,26 @@ export const useGenerateWorkflow = () => {
             onSuccess: (data) => {
                 toast.success("Workflow successfully generated!");
                 
-                const newNodes: Node[] = data.nodes.map((node) => ({
-                    id: node.id,
-                    type: node.type,
-                    position: node.position,
-                    data: node.data ?? {},
-                }));
+                // Map AI generated IDs to CUIDs so they don't collide in DB
+                const idMap = new Map<string, string>();
+                
+                const newNodes: Node[] = data.nodes.map((node) => {
+                    const newId = createId();
+                    idMap.set(node.id, newId);
+                    return {
+                        id: newId,
+                        type: node.type,
+                        position: node.position,
+                        data: node.data ?? {},
+                    };
+                });
 
                 const newEdges: Edge[] = data.edges.map((edge) => ({
                     id: `edge-${edge.source}-${edge.target}-${createId()}`,
-                    source: edge.source,
-                    target: edge.target,
+                    source: idMap.get(edge.source) || edge.source,
+                    target: idMap.get(edge.target) || edge.target,
+                    sourceHandle: "source-1",
+                    targetHandle: "target-1",
                 }));
 
                 setNodes(newNodes);

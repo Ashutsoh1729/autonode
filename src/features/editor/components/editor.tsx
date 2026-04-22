@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -21,7 +21,7 @@ import "@xyflow/react/dist/style.css";
 import { useSuspenceWorkflow } from "@/features/workflows/hooks/use-workflows";
 import { nodeComponents } from "@/lib/node-components";
 import { AddNodeButton } from "@/components/react-flow/add-node-btn";
-import { useSetAtom } from "jotai";
+import { useSetAtom, useAtomValue } from "jotai";
 import { editorAtom } from "../store/atoms";
 import { ExecutionWorkflowBtn } from "./execution-workflow-btn";
 import { AiWorkflowGeneratorSheet } from "@/features/workflow-generator/components/ai-workflow-generator-sheet";
@@ -36,30 +36,58 @@ export const EditorError = () => {
 
 const Editor = ({ workflowId }: { workflowId: number }) => {
   const { data: workflow } = useSuspenceWorkflow(workflowId);
-  console.log(workflow);
 
   const setEditor = useSetAtom(editorAtom);
+  const editor = useAtomValue(editorAtom);
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) =>
-      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-    [],
+    (changes: NodeChange[]) => {
+      if (editor) {
+        console.log("Editor state changed:", { nodes: editor.getNodes(), edges: editor.getEdges() });
+      }
+      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot));
+    },
+    [editor],
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
+    (changes: EdgeChange[]) => {
+      if (editor) {
+        console.log("Editor state changed:", { nodes: editor.getNodes(), edges: editor.getEdges() });
+      }
+      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot));
+    },
+    [editor],
   );
   const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-    [],
+    (params: Connection) => {
+      if (editor) {
+        console.log("Editor state changed:", { nodes: editor.getNodes(), edges: editor.getEdges() });
+      }
+      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot));
+    },
+    [editor],
   );
 
+  const prevNodesRef = useRef(nodes);
+  const prevEdgesRef = useRef(edges);
+
+  useEffect(() => {
+    const nodesChanged = JSON.stringify(nodes) !== JSON.stringify(prevNodesRef.current);
+    const edgesChanged = JSON.stringify(edges) !== JSON.stringify(prevEdgesRef.current);
+
+    if ((nodesChanged || edgesChanged) && editor) {
+      console.log("Editor state changed:", { nodes: editor.getNodes(), edges: editor.getEdges() });
+    }
+
+    prevNodesRef.current = nodes;
+    prevEdgesRef.current = edges;
+  }, [nodes, edges, editor]);
+
   const hasManualTrigger = useMemo(() => nodes.some((node) => node.type === "MANUAL_TRIGGER"), [nodes]);
+
   return (
     <div className="h-full w-full">
       <ReactFlow
